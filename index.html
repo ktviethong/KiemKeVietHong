@@ -106,6 +106,14 @@ td.col-ghi-chu, td.col-sua-chua, td.col-noi-mua {
   padding-left: 8px;
   text-align: left;
 }
+  td.colLoaiMay {
+  width: 300px !important;
+  max-width: 300px;
+  padding-left: 8px;
+  text-align: left;
+  white-space: normal;
+}
+
 /* --- Bảo dưỡng modal Q1..Q4 --- */
 .modal-bao-duong {
   display: flex;
@@ -358,7 +366,9 @@ function renderTable() {
         <td>${idx + 1}</td>
         <td class="col-so-the">${safeText(r.soThe)}</td>
         <td>${safeText(r.soMay)}</td>
-        <td>${safeText(r.loaiMay)}</td>
+        <td class="colLoaiMay">
+        <div class="clamp-2">${safeText(r.loaiMay)}</div>
+        </td>
         <td>${safeText(r.viTri)}</td>
         <td class="col-ghi-chu"><div class="clamp-2">${r.ghiChu ? safeText(r.ghiChu) : ''}</div></td>
         <td>
@@ -772,6 +782,7 @@ document.getElementById("checkAllQ3").addEventListener("change", function() {
   });
   renderTable();
 });
+
 document.getElementById("checkAllQ4").addEventListener("change", function() {
   document.querySelectorAll(".bdQ4").forEach(cb => {
     cb.checked = this.checked;

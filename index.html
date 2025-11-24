@@ -34,10 +34,12 @@ header {
 }
 
 table {
-  min-width: 1200px;  /* đảm bảo bảng đủ rộng để chứa tất cả cột */
+  min-width: 1200px;  /* đã có */
   border-collapse: collapse;
   background: #fff;
+  width: 100%;         /* chiếm full width trong table-wrap */
 }
+
 th, td {
   border: 1px solid #ddd;
   padding: 8px;
@@ -101,17 +103,92 @@ td .clamp-2 {
 
 /* đảm bảo td vẫn giữ display table-cell (không override) */
 /* (nếu bạn trước đó thêm min-height vào td thì hãy xóa rule đó) */
-td.col-ghi-chu, td.col-sua-chua, td.col-noi-mua {
+td.col-sua-chua, {
   /* chỉ dùng để căn padding / text-align, KHÔNG đổi display */
   padding-left: 8px;
   text-align: left;
 }
-  td.colLoaiMay {
-  width: 300px !important;
-  max-width: 300px;
-  padding-left: 8px;
-  text-align: left;
+ td.colLoaiMay {
+  max-width: 300px;       /* lớn nhất 300px */
+  min-width: 120px;       /* nhỏ nhất 120px */
   white-space: normal;
+  word-break: break-word;
+}
+td.colLoaiMay .clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+td.col-vi-tri {
+  max-width: 140px;       /* giới hạn width, tùy chỉnh */
+  min-width: 110px;
+  white-space: normal;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+td.col-vi-tri .clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;      /* clamp 2 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+td.col-so-may {
+  max-width: 140px;       /* bạn chỉnh width tùy ý */
+  min-width: 110px;
+  white-space: normal;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+td.col-so-may .clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;  /* giới hạn 2 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em;
+  max-height: calc(1.2em * 2);
+}
+/* Cố định cột Ghi chú */
+td.col-ghi-chu {
+  max-width: 180px;       /* bạn chỉnh width tùy ý */
+  min-width: 120px;
+  white-space: normal;    /* cho phép xuống dòng */
+  word-break: break-word;
+  overflow: hidden;
+}
+
+/* Clamp 2 dòng bên trong div */
+td.col-ghi-chu .clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;  
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em;
+  max-height: calc(1.2em * 2);
+}
+/* Nơi mua cố định và clamp 2 dòng */
+td.col-noi-mua {
+  max-width: 180px;       /* bạn chỉnh width tùy ý */
+  min-width: 120px;
+  white-space: normal;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+td.col-noi-mua .clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;       /* giới hạn 2 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em;
+  max-height: calc(1.2em * 2);
 }
 
 /* --- Bảo dưỡng modal Q1..Q4 --- */
@@ -154,7 +231,7 @@ td.col-ghi-chu, td.col-sua-chua, td.col-noi-mua {
 <header>📋 Kiểm kê máy Việt Hồng</header>
 
 <div class="controls">
-  <input id="searchBox" type="text" placeholder="🔍 Tìm kiếm tất cả !" />
+  <input id="searchBox" type="text" placeholder="🔍 Tìm kiếm " />
   <select id="filterBox">
     <option value="all">📋 Hiện tất cả</option>
     <option value="daKiemKe">✅ Đã kiểm kê</option>
@@ -168,7 +245,7 @@ td.col-ghi-chu, td.col-sua-chua, td.col-noi-mua {
   <button id="btnPrint">🖨️ In tem QR</button>
   <span id="status" style="margin-left:8px;color:#333;font-size:14px">Trạng thái: offline</span>
 </div>
-
+<div id="searchInfo" style="margin-bottom:5px; font-weight:normal; font-size:0.85em; color:#333;"></div>
 <div class="note"> Các thông tin chỉnh sửa trên điện thoại tự lưu, dùng máy tính thì bấm F5 load lại dữ liệu</div>
 
 <div class="table-wrap">
@@ -261,7 +338,7 @@ td.col-ghi-chu, td.col-sua-chua, td.col-noi-mua {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbyieNU3F31vNlVeo21lnvcJGBVBoKo_FzweLc9bRedtnHQv5cpCUAHDwHVMkQKL7h_iIA/exec';
+const GAS_URL='https://script.google.com/macros/library/d/1L5NfMXe0PYPWUzLOzzLn2qUacmgYl2seXSW4Wylf85R5oXE2qdA7i2LG/3';
 
 const statusEl=document.getElementById('status'), tbody=document.querySelector('#dataTable tbody');
 const filterBox=document.getElementById('filterBox'), searchBox=document.getElementById('searchBox');
@@ -339,17 +416,18 @@ function renderTable() {
   tbody.innerHTML = '';
   const filter = filterBox.value;
   const search = (searchBox.value || '').toLowerCase();
+  let countVisible = 0; // đếm số dòng hiển thị
 
   allData.forEach((r, idx) => {
     let show = true;
 
-    // filter theo checkbox
+    // Filter theo checkbox
     if (filter === 'daKiemKe' && !r.daKiemKe) show = false;
     if (filter === 'chuaKiemKe' && r.daKiemKe) show = false;
     if (filter === 'daIn' && !r.chonIn) show = false;
     if (filter === 'chuaIn' && r.chonIn) show = false;
 
-    // filter theo search
+    // Filter theo search
     if (search) {
       const haystack = [
         r.soThe, r.soMay, r.loaiMay, r.viTri, r.ghiChu, r.noiMua, r.ngayMua, r.suaChua,
@@ -359,17 +437,19 @@ function renderTable() {
     }
 
     if (show) {
+      countVisible++;
+
       const tr = document.createElement('tr');
       tr.dataset.index = idx;
 
       tr.innerHTML = `
         <td>${idx + 1}</td>
         <td class="col-so-the">${safeText(r.soThe)}</td>
-        <td>${safeText(r.soMay)}</td>
-        <td class="colLoaiMay">
-        <div class="clamp-2">${safeText(r.loaiMay)}</div>
+        <td class="col-so-may">
+        <div class="clamp-2">${safeText(r.soMay)}</div>
         </td>
-        <td>${safeText(r.viTri)}</td>
+        <td class="colLoaiMay"><div class="clamp-2">${safeText(r.loaiMay)}</div></td>
+        <td class="col-vi-tri"><div class="clamp-2">${r.viTri ? safeText(r.viTri) : ''}</div></td>
         <td class="col-ghi-chu"><div class="clamp-2">${r.ghiChu ? safeText(r.ghiChu) : ''}</div></td>
         <td>
           <button data-act="edit" data-i="${idx}">✏️</button>
@@ -378,20 +458,24 @@ function renderTable() {
         <td><input type="checkbox" class="daKiemKe" ${r.daKiemKe ? 'checked' : ''}></td>
         <td><input type="checkbox" class="chonIn" ${r.chonIn ? 'checked' : ''}></td>
         <td>${r.ngayMua ? formatDateDDMMYYYY(r.ngayMua) : ''}</td>
-        <td class="col-noi-mua"><div class="clamp-2">${r.noiMua ? safeText(r.noiMua) : ''}</div></td>
+        <td class="col-noi-mua">
+        <div class="clamp-2">${r.noiMua ? safeText(r.noiMua) : ''}</div>
+        </td>
         <td><input type="checkbox" class="bdQ bdQ1" ${r.bdQ1 ? 'checked' : ''}></td>
         <td><input type="checkbox" class="bdQ bdQ2" ${r.bdQ2 ? 'checked' : ''}></td>
         <td><input type="checkbox" class="bdQ bdQ3" ${r.bdQ3 ? 'checked' : ''}></td>
         <td><input type="checkbox" class="bdQ bdQ4" ${r.bdQ4 ? 'checked' : ''}></td>
         <td class="col-sua-chua"><div class="clamp-2">${r.suaChua ? safeText(r.suaChua) : ''}</div></td>
       `;
-
       tbody.appendChild(tr);
     }
   });
+  // Hiển thị thông tin số dòng tìm được
+  const searchInfo = document.getElementById('searchInfo');
+  if (searchInfo) {
+    searchInfo.textContent = `Tìm thấy ${countVisible} dòng`;
+  }
 }
-
-
 // ==== LOAD DATA JSONP ====
 function loadData(){
   setStatus('Đang tải dữ liệu...');
@@ -782,7 +866,6 @@ document.getElementById("checkAllQ3").addEventListener("change", function() {
   });
   renderTable();
 });
-
 document.getElementById("checkAllQ4").addEventListener("change", function() {
   document.querySelectorAll(".bdQ4").forEach(cb => {
     cb.checked = this.checked;

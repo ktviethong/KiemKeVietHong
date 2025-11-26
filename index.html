@@ -222,7 +222,10 @@ td.col-noi-mua .clamp-2 {
   padding: 2px 4px;
   font-size: 13px;
 }
-
+ /* ẩn nút link bên cạnh chỉnh sửa */
+button[data-act="qr"] {
+  display: none !important;
+}
 </style>
 </head>
 <body>
@@ -248,7 +251,7 @@ td.col-noi-mua .clamp-2 {
     <span id="status" style="margin-left:8px;color:#333;font-size:14px">Trạng thái: offline</span>
 </div>
 <div id="searchInfo" style="margin-bottom:5px; font-weight:normal; font-size:0.85em; color:#333;"></div>
-<div class="note"> Các thông tin chỉnh sửa trên điện thoại tự lưu, dùng máy tính thì bấm F5 load lại dữ liệu</div>
+<div class="note"> Web tự lưu dữ liệu về sheet,bấm F5 load lại dữ liệu, in lý lịch máy nhập số thẻ, in nhiều thêm dấu ","</div>
 
 <div class="table-wrap">
   <table id="dataTable">
@@ -384,7 +387,7 @@ function formatDateDDMMYYYY(d){
 }
 
 // ==== PHẦN MẬT KHẨU ====
-const PASSWORD = '12345';
+const PASSWORD = '1233';
 const mainUI = [document.querySelector('header'), document.querySelector('.controls'), document.querySelector('.note'), document.querySelector('.table-wrap')];
 mainUI.forEach(el => el.style.display = 'none');
 
@@ -780,7 +783,7 @@ document.getElementById('btnPrint').onclick = () => {
            padding:0.1mm; box-sizing:border-box; text-align:center; page-break-inside:avoid; }
     .tem .top { font-weight:bold; font-size:12px; margin:0.2mm 0; }
     .tem .qr { margin:0; padding:0; line-height:0; }
-    .tem .bottom { font-weight:bold; font-size:11px; margin:0.2mm 0 0.1mm 0; }
+    .tem .bottom { font-weight:bold; font-size:12px; margin:0.2mm 0 0.1mm 0; }
     canvas { display:block; margin:0; width:76px !important; height:76px !important; }
   `);
 w.document.write('</style></head><body>');
@@ -843,17 +846,11 @@ document.getElementById('btnPrintLyLich').onclick = () => {
   w.document.write(`
     <style>
       body {font-family: Arial; margin: 20px; color:#333;}
-      
-      /* Logo trái */
-      .header-logo {
-        text-align: left;
+
+      .header-logo div {
         font-size: 20px;
         font-weight: bold;
-        line-height: 1.1;
-        margin-bottom: 10px;
-      }
-      .header-logo span {
-        display: block;
+        line-height: 1.2;
       }
 
       h2 {
@@ -862,12 +859,6 @@ document.getElementById('btnPrintLyLich').onclick = () => {
         border-bottom: 2px solid #333;
         padding-bottom: 8px;
         margin-bottom: 10px;
-      }
-
-      /* QR nằm phía trên */
-      .qr-box {
-        text-align:center;
-        margin: 10px 0 20px 0;
       }
 
       table {
@@ -883,9 +874,18 @@ document.getElementById('btnPrintLyLich').onclick = () => {
         background: #eee;
         width: 30%;
       }
-      tr:nth-child(even) td { background: #fafafa; }
 
       .page-break { page-break-after: always; }
+
+      /* Phần ký tên cuối trang */
+      .sign-box {
+        margin-top: 10px;
+        text-align: right;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .sign1 { margin-right: 30px; }
+      .sign2 { margin-right: 60px; }
     </style>
   `);
 
@@ -901,7 +901,7 @@ document.getElementById('btnPrintLyLich').onclick = () => {
       return;
     }
 
-    // ---- SINH QR CODE ĐÚNG CHUẨN ----
+    // ---- SINH QR ----
     const qrText = `${baseURL}#${encodeURIComponent(soThe)}`;
     const tempDiv = document.createElement("div");
     new QRCode(tempDiv, { text: qrText, width: 100, height: 100 });
@@ -910,25 +910,25 @@ document.getElementById('btnPrintLyLich').onclick = () => {
       tempDiv.querySelector("img")?.src ||
       tempDiv.querySelector("canvas")?.toDataURL();
 
-    // ---- PHẦN HEADER chuẩn ----
+    // ---- HEADER ----
 w.document.write(`
-  <div class="header-logo" style="font-size:20px; font-weight:bold; line-height:1.2;">
-    <div style="margin-left:5px;">CÔNG TY TNHH MAY XK</div>
+  <div class="header-logo">
+    <div style="margin-left:0px;">CÔNG TY TNHH MAY XK</div>
     <div style="margin-left:55px;">VIỆT HỒNG</div>
   </div>
+
   <div style="position: relative; margin-bottom: 40px;">
-    <!-- QR code phía trên, cách trái 60px -->
     <div style="position: absolute; left:60px; top:0;">
       <img src="${qrImg}" style="width:100px;height:100px;">
     </div>
-    <!-- Lý lịch máy canh giữa trang A4 -->
-    <div style="text-align:center; font-size:20px; font-weight:bold; margin-left:0; padding-top:60px;">
+
+    <div style="text-align:center; font-size:20px; font-weight:bold; padding-top:60px;">
       LÝ LỊCH MÁY VH-${soThe}
     </div>
   </div>
 `);
 
-    // ---- BẢNG THÔNG TIN ----
+    // ---- BẢNG ----
     const fields = [
       ['Số thẻ', row.soThe],
       ['Số máy', row.soMay],
@@ -945,16 +945,26 @@ w.document.write(`
       ['Bảo dưỡng Q4', row.bdQ4 ? '✅ ' + (row.bdNgayQ4 || '') : ''],
       ['Sửa chữa', row.suaChua]
     ];
+
     w.document.write('<table>');
     fields.forEach(f => {
       w.document.write(`<tr><th>${f[0]}</th><td>${f[1]}</td></tr>`);
     });
     w.document.write('</table>');
 
+   // ---- PHẦN KÝ TÊN ----
+w.document.write(`
+  <div class="sign-box">
+    <div class="sign1" style="margin-right:1px;">Vĩnh Long, ngày ..... tháng ..... năm .....</div>
+    <div class="sign2" style="margin-right:105px;">Người lập</div>
+  </div>
+`);
+
     if (idx < listSoThe.length - 1) {
       w.document.write('<div class="page-break"></div>');
     }
   });
+
   w.document.write('</body></html>');
   w.document.close();
   w.focus();

@@ -591,16 +591,38 @@ tbody.addEventListener('click',e=>{
 });
 
 // checkbox changes inside table (daKiemKe, chonIn, bdQ1..bdQ4)
-tbody.addEventListener('change',e=>{
-  const tr=e.target.closest('tr'); if(!tr) return;
-  const idx=Number(tr.dataset.index);
-  if(e.target.classList.contains('daKiemKe')){ allData[idx].daKiemKe=e.target.checked; autoSyncRow(idx); }
-  if(e.target.classList.contains('chonIn')){ allData[idx].chonIn=e.target.checked; autoSyncRow(idx); }
-  if(e.target.classList.contains('bdQ1')){ allData[idx].bdQ1=e.target.checked; autoSyncRow(idx); }
-  if(e.target.classList.contains('bdQ2')){ allData[idx].bdQ2=e.target.checked; autoSyncRow(idx); }
-  if(e.target.classList.contains('bdQ3')){ allData[idx].bdQ3=e.target.checked; autoSyncRow(idx); }
-  if(e.target.classList.contains('bdQ4')){ allData[idx].bdQ4=e.target.checked; autoSyncRow(idx); }
-  renderTable();
+// ==== OPTIMIZED CHECKBOX HANDLER ====
+let autoSyncQueue = new Set();
+let autoSyncTimer = null;
+
+function scheduleAutoSync(idx) {
+  autoSyncQueue.add(idx);
+  if (autoSyncTimer) clearTimeout(autoSyncTimer);
+  autoSyncTimer = setTimeout(() => {
+    autoSyncQueue.forEach(i => autoSyncRow(i)); // sync tất cả thay đổi trong queue
+    autoSyncQueue.clear();
+  }, 300); // gộp trong 0.3s
+}
+
+// Listener cho tất cả checkbox trong tbody
+tbody.addEventListener('change', e => {
+  const tr = e.target.closest('tr');
+  if (!tr) return;
+  const idx = Number(tr.dataset.index);
+  const cb = e.target;
+
+  if (cb.classList.contains('daKiemKe')) allData[idx].daKiemKe = cb.checked;
+  if (cb.classList.contains('chonIn')) allData[idx].chonIn = cb.checked;
+  if (cb.classList.contains('bdQ1')) allData[idx].bdQ1 = cb.checked;
+  if (cb.classList.contains('bdQ2')) allData[idx].bdQ2 = cb.checked;
+  if (cb.classList.contains('bdQ3')) allData[idx].bdQ3 = cb.checked;
+  if (cb.classList.contains('bdQ4')) allData[idx].bdQ4 = cb.checked;
+
+  // chỉ update DOM row nếu cần (ví dụ highlight)
+  // tr.classList.toggle('highlight-row', cb.checked && cb.classList.contains('chonIn'));
+
+  // tự động sync, nhưng debounce để nhanh
+  scheduleAutoSync(idx);
 });
 
 let lastScrollY = 0;

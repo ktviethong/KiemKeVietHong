@@ -512,7 +512,12 @@ function loadData(){
             suaChua: r.suaChua || r.SuaChua || r['Sửa chữa'] || ''
           };
         });
-
+        // 🔥 BỎ DẤU ' DO GOOGLE SHEET TRẢ VỀ (SỐ MÁY)
+        allData.forEach(r => {
+          if (typeof r.soMay === 'string' && r.soMay.startsWith("'")) {
+            r.soMay = r.soMay.slice(1);
+        }
+        });
         // normalize ngay mua format
         allData.forEach(r => {
   if (r && r.ngayMua) r.ngayMua = formatDateDDMMYYYY(r.ngayMua);
@@ -541,7 +546,7 @@ function autoSyncRow(i){
   // gửi dữ liệu lên Sheet, map đúng các cột Q1-Q4, ngày BD và sửa chữa
   const payload = {
     soThe: rowData.soThe || "",
-    soMay: rowData.soMay || "",
+    soMay: rowData.soMay ? "'" + rowData.soMay : "",
     loaiMay: rowData.loaiMay || "",
     viTri: rowData.viTri || "",
     ghiChu: rowData.ghiChu || "",
@@ -757,17 +762,26 @@ modalInputs.forEach(input=>{
   });
 });
 
-// ==== SYNC THỦ CÔNG ====
-document.getElementById('btnSync').onclick=()=>{
-  const payload=allData, encoded=encodeURIComponent(JSON.stringify(payload));
-  const cb='__sync_cb_'+Date.now();
-  window[cb]=function(res){try{if(res&&res.success)setStatus('✅ Đồng bộ thành công'); else setStatus('❌ Lỗi đồng bộ',false);}finally{delete window[cb]; script.remove();}};
-  const script=document.createElement('script');
-  script.src=GAS_URL+'?updateAll=1&data='+encoded+'&callback='+cb+'&_='+Date.now();
-  document.head.appendChild(script);
-};
-document.getElementById('btnRefresh').onclick=loadData;
+  // ==== SYNC THỦ CÔNG ====
+document.getElementById('btnSync').onclick = () => {
+  const payload = allData.map(r => ({
+    ...r,
+    soMay: r.soMay ? "'" + r.soMay : ""
+  }));
 
+  const encoded = encodeURIComponent(JSON.stringify(payload));
+
+  const cb = '__sync_cb_' + Date.now();
+  window[cb] = function(res){
+    try {
+      if (res && res.success) setStatus('✅ Đồng bộ thành công');
+      else setStatus('❌ Lỗi đồng bộ', false);
+    } finally {
+      delete window[cb];
+      script.remove();
+    }
+  };
+  
 // highlight from hash (QR)
 let hashScrollDone = false;
 function highlightFromHash(retry = 40) {

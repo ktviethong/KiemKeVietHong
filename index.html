@@ -1015,7 +1015,16 @@ w.document.write(`
 };
 
 // Check / Uncheck tất cả "Đã KK"
-document.getElementById("checkAllKK").addEventListener("change", function() {
+const checkAllKK = document.getElementById("checkAllKK");
+
+// 🔒 KHÓA CHECK ALL KK: vẫn hiện nhưng không bấm được
+if (checkAllKK) {
+  checkAllKK.disabled = true;   // khóa không cho bấm
+  checkAllKK.checked = false;  // đảm bảo không bị tick sẵn
+}
+
+// Event vẫn giữ nguyên (sẽ KHÔNG bao giờ chạy vì disabled)
+checkAllKK && checkAllKK.addEventListener("change", function() {
   const items = document.querySelectorAll(".daKiemKe");
   items.forEach(cb => {
     cb.checked = this.checked;

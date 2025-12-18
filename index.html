@@ -405,7 +405,7 @@ document.body.appendChild(pwdModal);
 const pwdInput = document.getElementById('pwdInput'), pwdBtn = document.getElementById('pwdBtn');
 function initUI() { pwdModal.style.display = 'none'; mainUI.forEach(el => el.style.display = 'flex'); loadData(); }
 const loginTime = localStorage.getItem('loginTime');
-if (loginTime && Date.now() - loginTime < 3600 * 1000) initUI();
+if (loginTime && Date.now() - loginTime < 5 * 3600 * 1000) initUI();
 else {
   pwdInput.focus();
   pwdInput.addEventListener("keydown", e => { if (e.key === "Enter") pwdBtn.click(); });

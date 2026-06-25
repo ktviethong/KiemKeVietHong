@@ -824,7 +824,7 @@ document.getElementById('btnPrint').onclick = () => {
     .tem { width:32mm; height:34mm; border:0.1px solid #000; border-radius:0.2px;
            display:flex; flex-direction:column; justify-content:center; align-items:center;
            padding:0.1mm; box-sizing:border-box; text-align:center; page-break-inside:avoid; }
-    .tem .top { font-weight:bold; font-size:12px; margin:0.2mm 0; }
+    .tem .top { font-weight:normal; font-size:12px; margin:0.2mm 0; }
     .tem .qr { margin:0; padding:0; line-height:0; }
     .tem .bottom { font-weight:bold; font-size:12px; margin:0.2mm 0 0.1mm 0; }
     canvas { display:block; margin:0; width:76px !important; height:76px !important; }
@@ -836,7 +836,7 @@ w.document.write('</style></head><body>');
     const soMay = r.soMay || '';
     w.document.write(`
       <div class="tem">
-        <div class="top">VH-${soThe}</div>
+        <div class="top">${soThe}</div>
         <div class="qr" id="qr_${code}"></div>
         <div class="bottom">SM: ${soMay}</div>
       </div>

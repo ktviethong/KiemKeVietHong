@@ -826,7 +826,14 @@ document.getElementById('btnPrint').onclick = () => {
            padding:0.1mm; box-sizing:border-box; text-align:center; page-break-inside:avoid; }
     .tem .top { font-weight:normal; font-size:12px; margin:0.2mm 0; }
     .tem .qr { margin:0; padding:0; line-height:0; }
-    .tem .bottom { font-weight:bold; font-size:12px; margin:0.2mm 0 0.1mm 0; }
+    .tem .bottom {
+  font-family: Tahoma, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0;
+  margin: 0.2mm 0 0.1mm 0;
+  white-space: nowrap;
+}
     canvas { display:block; margin:0; width:76px !important; height:76px !important; }
   `);
 w.document.write('</style></head><body>');

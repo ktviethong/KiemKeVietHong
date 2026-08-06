@@ -3,993 +3,1245 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>📋 Kiểm kê máy Việt Hồng</title>
+<title>Kiểm kê máy Việt Hồng</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <style>
 :root{
   --blue:#0b74d1;
   --blue-dark:#075da8;
-  --bg:#f4f6f8;
-  --border:#d9dee5;
-  --danger:#c0392b;
-  --success:#087f5b;
+  --navy:#0f2f55;
+  --bg:#f3f6fa;
+  --card:#fff;
+  --line:#dbe3ec;
+  --text:#172033;
+  --muted:#64748b;
+  --green:#087f5b;
+  --yellow:#b7791f;
+  --red:#c0392b;
+  --shadow:0 12px 32px rgba(15,47,85,.10);
 }
 *{box-sizing:border-box}
-body{font-family:Arial,sans-serif;margin:0;background:var(--bg);color:#222}
+html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
 button,input,select,textarea{font:inherit}
-button{touch-action:manipulation}
-header{
-  display:flex;justify-content:center;align-items:center;
-  background:var(--blue);color:#fff;padding:16px 10px;
-  font-size:24px;font-weight:700;letter-spacing:.5px;text-align:center
-}
-.controls{
-  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
-  padding:12px;background:#fff;border-bottom:1px solid #e2e8f0
-}
-.controls input[type="text"]{padding:7px 9px;border:1px solid #bbb;border-radius:5px;width:220px}
-.controls select{padding:7px 9px;border:1px solid #bbb;border-radius:5px}
-.controls button,.modal button{
-  background:var(--blue);color:#fff;border:0;padding:8px 11px;
-  border-radius:6px;cursor:pointer
-}
-.controls button:hover,.modal button:hover{background:var(--blue-dark)}
-button.ghost{background:#e9ecef!important;color:#333!important}
+button{cursor:pointer;touch-action:manipulation}
 button:disabled{opacity:.55;cursor:not-allowed}
-.print-history{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.print-history input{width:90px!important}
-.status-line{padding:7px 12px;background:#fff;border-bottom:1px solid #e6e9ed;font-size:13px}
-#status{font-weight:600}
-#searchInfo{margin-left:12px;color:#444}
-.note{padding:8px 12px;color:#555;font-size:13px;background:#fff7d6;border-bottom:1px solid #eadf9c}
-.table-wrap{display:block;width:100%;overflow:auto;box-sizing:border-box}
-table{min-width:1200px;border-collapse:collapse;background:#fff;width:100%}
-th,td{border:1px solid #ddd;padding:8px;text-align:center;white-space:nowrap}
-th{background:var(--blue);color:#fff;position:sticky;top:0;z-index:2}
-tr.highlight-row{background:#fff3a0!important}
-tr.pending-row{opacity:.65}
-td .clamp-2{
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  overflow:hidden;text-overflow:ellipsis;white-space:normal;word-break:break-word;
-  line-height:1.2em;max-height:2.4em
+.hidden{display:none!important}
+
+.topbar{
+  position:sticky;top:0;z-index:80;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:12px 18px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;
+  box-shadow:0 8px 24px rgba(15,47,85,.22)
 }
-td.colLoaiMay{max-width:300px;min-width:120px;white-space:normal}
-td.col-vi-tri,td.col-so-may{max-width:140px;min-width:110px;white-space:normal;overflow:hidden}
-td.col-ghi-chu,td.col-noi-mua,td.col-sua-chua{max-width:180px;min-width:120px;white-space:normal;overflow:hidden}
-td.col-sua-chua{text-align:left;vertical-align:top}
-.maintenance-list{margin:0;padding-left:22px;white-space:normal;line-height:1.35}
-.maintenance-list li{margin:0 0 3px;word-break:break-word}
-.maintenance-list li:last-child{margin-bottom:0}
-.maintenance-list-preview{max-height:5.5em;overflow:hidden}
-.row-action{background:var(--blue);color:#fff;border:0;border-radius:5px;padding:6px 8px;cursor:pointer}
-.small-checkbox{width:16px;height:16px;margin:0}
-.modal{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
-  z-index:9999;align-items:center;justify-content:center;padding:10px
-}
-.modal .card{
-  background:#fff;padding:16px;border-radius:9px;width:390px;max-width:100%;
-  max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch
-}
-.modal label{display:block;margin-top:9px;font-weight:600}
-.modal input[type="text"],.modal textarea{
-  width:100%;padding:7px;margin-top:5px;border:1px solid #bbb;border-radius:5px
-}
-.check-label{display:flex!important;align-items:center;gap:8px}
-.check-label input{width:17px;height:17px}
-.modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
-.modal-bao-duong{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:7px}
-.bd-item{border:1px solid var(--border);border-radius:6px;padding:8px}
-.bd-item label{margin:0;display:flex;align-items:center;gap:6px}
-.bd-item input[type="checkbox"]{width:17px;height:17px}
-.bd-item input[type="text"]{width:100%;font-size:13px}
+.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:44px;height:44px;border:1px solid rgba(255,255,255,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;background:rgba(255,255,255,.15)}
+.brand h1{font-size:21px;margin:0}.brand p{font-size:12px;margin:3px 0 0;opacity:.9}.top-actions{display:flex;align-items:center;gap:8px}.pill{padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);font-size:13px;font-weight:700}
+
+.btn{border:0;border-radius:9px;padding:9px 12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:var(--blue);color:#fff}.btn-dark{background:var(--navy);color:#fff}.btn-success{background:var(--green);color:#fff}.btn-warning{background:#f6c453;color:#222}.btn-danger{background:var(--red);color:#fff}.btn-light{background:#fff;color:var(--navy)}.btn-muted{background:#e8edf3;color:#26364c}.btn-full{width:100%}
+
+.app-shell{display:grid;grid-template-columns:270px minmax(0,1fr);gap:14px;max-width:1900px;margin:0 auto;padding:14px}
+.sidebar{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);align-self:start;position:sticky;top:82px;max-height:calc(100vh - 96px);overflow:auto}
+.sidebar h2{font-size:18px;margin:0 0 10px}.sidebar label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}.sidebar input,.sidebar select,.modal input,.modal select,.modal textarea{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}.sidebar .btn{margin-top:8px}.section-divider{height:1px;background:var(--line);margin:13px 0}.small-help{font-size:12px;color:var(--muted);line-height:1.45;margin-top:7px}
+
+.content{min-width:0}.notice{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;background:#fff7d6;border:1px solid #eadf9c;border-radius:12px;margin-bottom:10px;font-size:13px}.status-ok{color:var(--green)!important}.status-error{color:var(--red)!important}#statusText{font-weight:700;white-space:nowrap}
+.kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:9px;margin-bottom:10px}.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:0 5px 16px rgba(15,47,85,.05)}.kpi span{font-size:12px;color:var(--muted)}.kpi b{display:block;font-size:21px;margin-top:3px}
+
+.table-card{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.table-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line)}.table-head h2{font-size:18px;margin:0}.table-head p{font-size:13px;color:var(--muted);margin:4px 0 0}.table-actions{display:flex;gap:7px;flex-wrap:wrap}
+.table-wrap{display:block;position:relative;width:100%;max-width:100%;height:calc(100vh - 285px);min-height:360px;overflow:auto;background:#fff;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.table-wrap::-webkit-scrollbar{width:13px;height:13px}.table-wrap::-webkit-scrollbar-track{background:#e9eef5}.table-wrap::-webkit-scrollbar-thumb{background:#7b8794;border:3px solid #e9eef5;border-radius:10px}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:2050px;background:#fff}th,td{border-right:1px solid #e3e8ef;border-bottom:1px solid #e3e8ef;padding:7px 8px;text-align:center;white-space:nowrap;font-size:13px;vertical-align:middle}th{position:sticky;top:0;z-index:6;background:var(--blue);color:#fff;font-weight:700}tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef6ff}.cell-wrap{white-space:normal;line-height:1.25;max-width:220px;min-width:120px;text-align:left}.col-type{max-width:300px;min-width:180px}.col-note{max-width:240px;min-width:150px}.col-maint{max-width:300px;min-width:170px}.row-highlight td{background:#fff0a8!important;font-weight:700}.row-pending{opacity:.55}.tag-cell{font-weight:800;color:#0b5eab}.action-btn{border:0;border-radius:7px;padding:6px 8px;background:#dbeafe;color:#075da8;font-weight:700}.small-check{width:17px;height:17px}.badge{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:800}.badge-confirmed{background:#d9f8e9;color:#087f5b}.badge-suggested{background:#fff1c7;color:#8a5b00}.badge-missing{background:#fee2e2;color:#b42318}.template-name{display:block;font-size:11px;color:#64748b;margin-top:2px;max-width:170px;white-space:normal}
+.pager{display:flex;justify-content:center;align-items:center;gap:9px;padding:10px;border-top:1px solid var(--line);background:#fff}.pager span{font-size:13px;color:var(--muted);min-width:130px;text-align:center}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:120;align-items:center;justify-content:center;padding:12px}.modal.open{display:flex}.modal-card{width:min(850px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;padding:16px;box-shadow:0 25px 80px rgba(0,0,0,.28)}.modal-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:11px}.modal-head h2{font-size:19px;margin:0}.icon-btn{border:0;border-radius:9px;width:38px;height:38px;background:#eef2f7;font-size:20px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:5px}.field.wide{grid-column:1/-1}.checkbox-row{display:flex;gap:20px;flex-wrap:wrap;margin:12px 0;padding:10px;border:1px solid var(--line);border-radius:10px}.quarter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.quarter{border:1px solid var(--line);padding:9px;border-radius:9px}.quarter label{font-weight:700}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.readonly-box{padding:9px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;font-size:13px;color:#475569}
+
+.maintenance-eval{margin-top:14px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;padding:12px}
+.maintenance-eval-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.maintenance-eval-head h3{margin:0;font-size:16px}.maintenance-eval-head p{margin:4px 0 0;font-size:12px;color:var(--muted);line-height:1.4}
+.maintenance-quarter-tabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.maintenance-quarter-tab{border:1px solid #b8c7d9;background:#fff;color:#334155;border-radius:8px;padding:7px 11px;font-weight:800}
+.maintenance-quarter-tab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.maintenance-quarter-tab:disabled{background:#e5e7eb;color:#94a3b8;border-color:#d7dde5}
+.maintenance-checklist{display:grid;gap:8px}
+.maintenance-item{display:grid;grid-template-columns:minmax(230px,1.3fr) minmax(260px,1fr) minmax(180px,.8fr);gap:10px;align-items:center;background:#fff;border:1px solid #dbe3ec;border-radius:10px;padding:9px}
+.maintenance-item-title{display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;line-height:1.35}
+.maintenance-item-no{flex:0 0 27px;height:27px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#e8f2ff;color:#075da8;font-weight:900}
+.maintenance-result-options{display:flex;gap:6px;flex-wrap:wrap}
+.maintenance-result-option{display:inline-flex;align-items:center;gap:5px;border:1px solid #ccd6e2;border-radius:8px;padding:6px 8px;background:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.maintenance-result-option input{width:auto;margin:0}.maintenance-result-option.pass:has(input:checked){background:#dcfce7;border-color:#22c55e;color:#166534}.maintenance-result-option.fail:has(input:checked){background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.maintenance-result-note{width:100%!important;padding:7px 8px!important;font-size:12px}.maintenance-eval-empty{padding:18px;text-align:center;border:1px dashed #b9c6d5;border-radius:10px;background:#fff;color:#64748b;font-size:13px;line-height:1.5}
+.maintenance-eval-summary{font-size:12px;color:#475569;margin-bottom:8px}.maintenance-eval-summary b{color:#0f2f55}
 body.modal-open{overflow:hidden}
-.login-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;
-  align-items:center;justify-content:center;z-index:10000;padding:15px
-}
-.login-card{background:#fff;padding:22px;border-radius:10px;width:310px;text-align:center}
-.login-card input{width:100%;padding:9px;margin-top:10px;border:1px solid #aaa;border-radius:6px}
-.login-card button{margin-top:12px;padding:8px 15px;background:var(--blue);color:#fff;border:0;border-radius:6px}
-.error-text{color:var(--danger);font-size:13px;min-height:18px;margin-top:7px}
-@media(max-width:640px){
-  header{font-size:20px;padding:13px 8px}
-  .controls{flex-direction:column;align-items:stretch}
-  .controls input[type="text"],.controls select,.controls button{width:100%}
-  .print-history{display:grid;grid-template-columns:1fr 1fr}
-  .print-history label{grid-column:1/-1}
-  .print-history input{width:100%!important}
-  .status-line{line-height:1.6}
-  #searchInfo{display:block;margin-left:0}
-}
+
+.login-overlay{position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,rgba(15,47,85,.96),rgba(11,116,209,.9));display:flex;align-items:center;justify-content:center;padding:16px}.login-card{width:min(390px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.3)}.login-logo{width:68px;height:68px;border-radius:20px;background:#e9f3ff;color:var(--blue);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;font-weight:900}.login-card h2{margin:0 0 7px}.login-card p{font-size:13px;color:var(--muted);line-height:1.5}.login-card input{width:100%;padding:11px;border:1px solid #bdc9d8;border-radius:9px;margin-top:8px}.login-card .btn{width:100%;margin-top:10px}.login-error{min-height:19px;color:var(--red);font-size:13px;margin-top:7px}
+
+@media(max-width:1100px){.app-shell{grid-template-columns:1fr}.sidebar{position:static;max-height:none}.sidebar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.sidebar-grid>div{min-width:0}.kpi-grid{grid-template-columns:repeat(3,1fr)}.table-wrap{height:calc(100vh - 330px)}}
+@media(max-width:680px){.topbar{align-items:flex-start;flex-direction:column;padding:10px 12px}.brand h1{font-size:18px}.top-actions{width:100%;justify-content:space-between}.app-shell{padding:7px}.sidebar-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.notice{flex-direction:column}.table-head{align-items:flex-start;flex-direction:column}.table-actions{width:100%}.table-actions .btn{flex:1}.table-wrap{height:calc(100vh - 365px);min-height:300px}.form-grid{grid-template-columns:1fr}.quarter-grid{grid-template-columns:repeat(2,1fr)}.field.wide{grid-column:auto}.maintenance-eval-head{flex-direction:column}.maintenance-quarter-tabs{justify-content:flex-start}.maintenance-item{grid-template-columns:1fr}.modal-actions .btn{flex:1}}
+@media print{.no-print{display:none!important}}
 </style>
 </head>
 <body>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">VH</div><div><h1>Kiểm kê máy Việt Hồng</h1><p>Google Sheet · QR cũ · Phiếu bảo trì CĐ tự chọn theo loại máy</p></div></div>
+  <div class="top-actions"><span id="rolePill" class="pill">Chưa đăng nhập</span><button id="btnLogout" class="btn btn-light hidden">Đăng xuất</button></div>
+</header>
 
-<div id="appRoot" style="display:none">
-  <header>📋 Kiểm kê máy Việt Hồng</header>
-
-  <div class="controls">
-    <input id="searchBox" type="text" placeholder="🔍 Tìm kiếm">
-    <select id="filterBox">
-      <option value="all">📋 Hiện tất cả</option>
-      <option value="daKiemKe">✅ Đã kiểm kê</option>
-      <option value="chuaKiemKe">⬜ Chưa kiểm kê</option>
-      <option value="daIn">🖨️ Đã chọn in</option>
-      <option value="chuaIn">📄 Chưa chọn in</option>
-    </select>
-    <button id="btnAdd">➕ Thêm</button>
-    <button id="btnRefresh" class="ghost">🔄 Tải lại từ Sheet</button>
-    <button id="btnPrint">🖨️ In tem QR</button>
-
-    <div class="print-history">
-      <label>Số thẻ:</label>
-      <input type="text" id="soThePrint" placeholder="VD: 12,15">
-      <button id="btnPrintLyLich">🖨️ In lý lịch</button>
+<div id="appRoot" class="app-shell hidden">
+  <aside class="sidebar no-print">
+    <h2>Điều khiển</h2>
+    <div class="sidebar-grid">
+      <div><label>Tìm kiếm</label><input id="searchBox" type="text" placeholder="Số thẻ, số máy, loại máy..."></div>
+      <div><label>Lọc dữ liệu</label><select id="filterBox">
+        <option value="all">Tất cả</option>
+        <option value="daKiemKe">Đã kiểm kê</option>
+        <option value="chuaKiemKe">Chưa kiểm kê</option>
+        <option value="daIn">Đã chọn in QR</option>
+        <option value="chuaIn">Chưa chọn in QR</option>
+        <option value="daXacNhanMau">Mẫu đã xác nhận</option>
+        <option value="canXacNhanMau">Mẫu cần xác nhận</option>
+        <option value="chuaCoMau">Chưa có mẫu bảo trì</option>
+      </select></div>
+      <div><label>Dòng/trang</label><select id="pageSizeBox"><option value="50">50</option><option value="100" selected>100</option><option value="200">200</option></select></div>
     </div>
-  </div>
 
-  <div class="status-line">
-    <span id="status">Trạng thái: chưa tải</span>
-    <span id="searchInfo"></span>
-  </div>
+    <button id="btnRefresh" class="btn btn-muted btn-full">Tải lại từ Google Sheet</button>
+    <button id="btnAdd" class="btn btn-primary btn-full">Thêm máy</button>
+    <button id="btnSyncTemplates" class="btn btn-success btn-full">Đồng bộ mẫu bảo trì</button>
 
-  <div class="note">
-    🔒 Bản an toàn: không còn chức năng xóa và ghi lại toàn bộ Google Sheet.
-  </div>
+    <div class="section-divider"></div>
+    <label>Chọn QR theo danh sách đang lọc</label>
+    <button id="btnSelectQrFiltered" class="btn btn-muted btn-full">Chọn tất cả đang lọc</button>
+    <button id="btnUnselectQrFiltered" class="btn btn-muted btn-full">Bỏ chọn tất cả đang lọc</button>
+    <button id="btnPrintQr" class="btn btn-warning btn-full">In tem QR đã chọn</button>
 
-  <div class="table-wrap">
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th rowspan="2">STT</th>
-          <th rowspan="2">Số thẻ</th>
-          <th rowspan="2">Số máy</th>
-          <th rowspan="2">Loại máy</th>
-          <th rowspan="2">Vị trí</th>
-          <th rowspan="2">Ghi chú / Đơn vị mượn</th>
-          <th rowspan="2">Hành động</th>
-          <th rowspan="2">Đã KK<br><input type="checkbox" id="checkAllKK" disabled title="Đã khóa chọn tất cả kiểm kê"></th>
-          <th rowspan="2">In QR<br><input type="checkbox" id="checkAllQR"></th>
-          <th rowspan="2">Ngày mua</th>
-          <th rowspan="2">Nơi mua</th>
-          <th colspan="4">Bảo dưỡng</th>
-          <th rowspan="2">Nội dung bảo dưỡng</th>
-        </tr>
-        <tr>
-          <th>Q1<br><input type="checkbox" id="checkAllQ1"></th>
-          <th>Q2<br><input type="checkbox" id="checkAllQ2"></th>
-          <th>Q3<br><input type="checkbox" id="checkAllQ3"></th>
-          <th>Q4<br><input type="checkbox" id="checkAllQ4"></th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    <div class="section-divider"></div>
+    <label>Số thẻ cần in</label>
+    <input id="reportTagInput" type="text" placeholder="VD: VH-500, 501 hoặc all">
+    <button id="btnPrintHistory" class="btn btn-dark btn-full">In lý lịch máy</button>
+    <button id="btnPrintMaintenance" class="btn btn-primary btn-full">Xuất Excel phiếu bảo trì CĐ</button>
+    <div class="small-help">Có thể nhập nhiều số thẻ, cách nhau bằng dấu phẩy. Hệ thống sẽ đọc Mã mẫu bảo trì, đưa kết quả Đạt/Không đạt vào đúng quý và tạo khu vực ký tên của Phòng Cơ điện.</div>
+  </aside>
+
+  <main class="content">
+    <div class="notice no-print"><div><b>Lưu ý:</b> Mã mẫu “Gợi ý tự động” cần phòng Cơ điện kiểm tra và đổi thành “Đã xác nhận”.</div><div id="statusText">Sẵn sàng</div></div>
+    <div id="kpiGrid" class="kpi-grid no-print"></div>
+    <section class="table-card">
+      <div class="table-head no-print"><div><h2>Danh sách máy</h2><p id="resultInfo">0 dòng</p></div><div class="table-actions"><button id="btnPrev" class="btn btn-muted">◀ Trước</button><button id="btnNext" class="btn btn-muted">Sau ▶</button></div></div>
+      <div class="table-wrap">
+        <table id="dataTable">
+          <thead><tr>
+            <th>STT</th><th>Số thẻ</th><th>Số máy</th><th>Loại máy</th><th>Vị trí</th><th>Ghi chú / ĐV mượn</th><th>Mẫu bảo trì</th><th>Phân loại</th><th>Hành động</th><th>Đã KK</th><th>In QR</th><th>Ngày mua</th><th>Nơi mua</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="pager no-print"><button id="btnPrevBottom" class="btn btn-muted">◀ Trước</button><span id="pagerInfo">Trang 1/1</span><button id="btnNextBottom" class="btn btn-muted">Sau ▶</button></div>
+    </section>
+  </main>
 </div>
 
-<div id="editModal" class="modal">
-  <div class="card">
-    <h3 id="modalTitle" style="margin:0 0 7px">✏️ Chỉnh sửa</h3>
-
-    <label>Số thẻ *</label>
-    <input id="m_soThe" type="text" autocomplete="off">
-
-    <label>Số máy</label>
-    <input id="m_soMay" type="text" autocomplete="off">
-
-    <label>Loại máy</label>
-    <input id="m_loaiMay" type="text">
-
-    <label>Vị trí</label>
-    <input id="m_viTri" type="text">
-
-    <label>Ghi chú / Đơn vị mượn</label>
-    <textarea id="m_ghiChu" rows="3"></textarea>
-
-    <label class="check-label"><input type="checkbox" id="m_daKiemKe"> Đã kiểm kê</label>
-    <label class="check-label"><input type="checkbox" id="m_chonIn"> Chọn để in QR</label>
-
-    <label>Ngày mua/mượn</label>
-    <input id="m_ngayMua" type="text" placeholder="dd/MM/yyyy">
-
-    <label>Nơi mua</label>
-    <input id="m_noiMua" type="text">
-
-    <label style="margin-top:12px">Bảo dưỡng</label>
-    <div class="modal-bao-duong">
-      <div class="bd-item">
-        <label><input type="checkbox" id="m_bdQ1"> Q1</label>
-        <input type="text" id="m_bdQ1_ngay" placeholder="dd/MM/yyyy">
+<div id="editModal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head"><h2 id="modalTitle">Chỉnh sửa máy</h2><button id="btnCloseModal" class="icon-btn">×</button></div>
+    <form id="editForm">
+      <div class="form-grid">
+        <div class="field"><label>Số thẻ *</label><input id="m_soThe" required></div>
+        <div class="field"><label>Số máy</label><input id="m_soMay"></div>
+        <div class="field"><label>Loại máy</label><input id="m_loaiMay"></div>
+        <div class="field"><label>Vị trí</label><input id="m_viTri"></div>
+        <div class="field"><label>Ngày mua/mượn</label><input id="m_ngayMua" placeholder="dd/MM/yyyy"></div>
+        <div class="field"><label>Nơi mua</label><input id="m_noiMua"></div>
+        <div class="field wide"><label>Ghi chú / Đơn vị mượn</label><textarea id="m_ghiChu" rows="2"></textarea></div>
+        <div class="field"><label>Mã mẫu bảo trì</label><select id="m_maMauBaoTri"></select></div>
+        <div class="field"><label>Trạng thái phân loại</label><select id="m_trangThaiPhanLoai"><option>Gợi ý tự động - cần xác nhận</option><option>Đã xác nhận</option><option>Cần phân loại</option><option>Không áp dụng</option></select></div>
+        <div class="field wide"><label>Ghi chú phân loại</label><textarea id="m_ghiChuPhanLoai" rows="2"></textarea></div>
       </div>
-      <div class="bd-item">
-        <label><input type="checkbox" id="m_bdQ2"> Q2</label>
-        <input type="text" id="m_bdQ2_ngay" placeholder="dd/MM/yyyy">
+      <div class="checkbox-row"><label><input id="m_daKiemKe" type="checkbox"> Đã kiểm kê</label><label><input id="m_chonIn" type="checkbox"> Chọn in QR</label></div>
+      <div class="quarter-grid">
+        <div class="quarter"><label><input id="m_bdQ1" type="checkbox"> Q1</label><input id="m_bdNgayQ1" placeholder="Ngày Q1"></div>
+        <div class="quarter"><label><input id="m_bdQ2" type="checkbox"> Q2</label><input id="m_bdNgayQ2" placeholder="Ngày Q2"></div>
+        <div class="quarter"><label><input id="m_bdQ3" type="checkbox"> Q3</label><input id="m_bdNgayQ3" placeholder="Ngày Q3"></div>
+        <div class="quarter"><label><input id="m_bdQ4" type="checkbox"> Q4</label><input id="m_bdNgayQ4" placeholder="Ngày Q4"></div>
       </div>
-      <div class="bd-item">
-        <label><input type="checkbox" id="m_bdQ3"> Q3</label>
-        <input type="text" id="m_bdQ3_ngay" placeholder="dd/MM/yyyy">
-      </div>
-      <div class="bd-item">
-        <label><input type="checkbox" id="m_bdQ4"> Q4</label>
-        <input type="text" id="m_bdQ4_ngay" placeholder="dd/MM/yyyy">
-      </div>
-    </div>
 
-    <label>Nội dung bảo dưỡng</label>
-    <textarea id="m_suaChua" rows="5" placeholder="Mỗi nội dung nhập một dòng, hệ thống sẽ tự đánh số 1, 2, 3..."></textarea>
+      <section class="maintenance-eval">
+        <div class="maintenance-eval-head">
+          <div>
+            <h3>Đánh giá từng nội dung bảo dưỡng</h3>
+            <p id="maintenanceEvalHint">Chọn quý đã bảo dưỡng để đánh dấu Đạt hoặc Không đạt cho từng nội dung.</p>
+          </div>
+          <div id="maintenanceQuarterTabs" class="maintenance-quarter-tabs"></div>
+        </div>
+        <div id="maintenanceChecklist" class="maintenance-checklist"></div>
+      </section>
 
-    <div class="actions">
-      <button id="cancelBtn" class="ghost">Hủy</button>
-      <button id="saveBtn">Cập nhật</button>
-    </div>
+      <div class="modal-actions"><button type="button" id="btnCancel" class="btn btn-muted">Đóng</button><button type="submit" id="btnSave" class="btn btn-primary">Lưu</button></div>
+    </form>
   </div>
 </div>
 
 <div id="loginOverlay" class="login-overlay">
-  <div class="login-card">
-    <h3 style="margin:0">🔒 Nhập mật khẩu</h3>
-    <input id="pwdInput" type="password" autocomplete="current-password">
-    <div id="loginError" class="error-text"></div>
-    <button id="pwdBtn">Đăng nhập</button>
-  </div>
+  <div class="login-card"><div class="login-logo">VH</div><h2>Đăng nhập kiểm kê</h2><p>Quét QR hoặc truy cập trang đều phải đăng nhập trước khi xem thông tin máy.</p><input id="passwordInput" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu"><div id="loginError" class="login-error"></div><button id="btnLogin" class="btn btn-primary">Đăng nhập</button></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 'use strict';
 
-/* Giữ nguyên URL nếu bạn cập nhật lại đúng Deployment cũ của Apps Script. */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyrbnHabgkN6mzhmGJawWH4ms2_oUk0oF0socFy6cTiuf5uOyLToNaXr7_021R2meNg/exec';
-const PASSWORD = '1102';
-const LOGIN_KEY = 'kiem_ke_may_login_at_v2';
-const LOGIN_DURATION_MS = 5 * 60 * 60 * 1000;
+/* Giữ URL này nếu cập nhật đúng Deployment Apps Script cũ. Nếu tạo Deployment mới, thay URL bên dưới. */
+/* Mật khẩu không lưu trong HTML; việc kiểm tra được thực hiện trong Code.gs. */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwJt3CKXiH-99xT5Tw9jmtPM-kpKbugUPt1CB325syoVXDLkJFtVTaJp3OKRWaqOrF2/exec';
+const TOKEN_KEY = 'vh_machine_auth_token_v4';
 const BATCH_SIZE = 50;
 
-const appRoot = document.getElementById('appRoot');
-const loginOverlay = document.getElementById('loginOverlay');
-const pwdInput = document.getElementById('pwdInput');
-const pwdBtn = document.getElementById('pwdBtn');
-const loginError = document.getElementById('loginError');
-const statusEl = document.getElementById('status');
-const searchInfo = document.getElementById('searchInfo');
-const tbody = document.querySelector('#dataTable tbody');
-const filterBox = document.getElementById('filterBox');
-const searchBox = document.getElementById('searchBox');
-const modal = document.getElementById('editModal');
-const saveBtn = document.getElementById('saveBtn');
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+const clean = value => String(value ?? '').trim();
+const bool = value => value === true || value === 1 || value === '1' || ['true','yes','y','x','✓','✅','đã','da','ok'].includes(String(value ?? '').trim().toLowerCase());
+const comparableTag = value => clean(value).replace(/^VH[\s-]*/i,'').replace(/^0+(?=\d)/,'').toUpperCase();
+const displayTag = value => /^VH[\s-]*/i.test(clean(value)) ? clean(value).replace(/^VH[\s-]*/i,'VH-') : 'VH-' + clean(value);
+const currentBaseUrl = () => location.href.split('#')[0];
+const todayText = () => {const d=new Date();return [String(d.getDate()).padStart(2,'0'),String(d.getMonth()+1).padStart(2,'0'),d.getFullYear()].join('/')};
 
-const fields = {
-  soThe: document.getElementById('m_soThe'),
-  soMay: document.getElementById('m_soMay'),
-  loaiMay: document.getElementById('m_loaiMay'),
-  viTri: document.getElementById('m_viTri'),
-  ghiChu: document.getElementById('m_ghiChu'),
-  daKiemKe: document.getElementById('m_daKiemKe'),
-  chonIn: document.getElementById('m_chonIn'),
-  ngayMua: document.getElementById('m_ngayMua'),
-  noiMua: document.getElementById('m_noiMua'),
-  bdQ1: document.getElementById('m_bdQ1'),
-  bdQ2: document.getElementById('m_bdQ2'),
-  bdQ3: document.getElementById('m_bdQ3'),
-  bdQ4: document.getElementById('m_bdQ4'),
-  bdNgayQ1: document.getElementById('m_bdQ1_ngay'),
-  bdNgayQ2: document.getElementById('m_bdQ2_ngay'),
-  bdNgayQ3: document.getElementById('m_bdQ3_ngay'),
-  bdNgayQ4: document.getElementById('m_bdQ4_ngay'),
-  suaChua: document.getElementById('m_suaChua')
+const state = {
+  token: localStorage.getItem(TOKEN_KEY) || '',
+  allData: [], filtered: [], templates: [], templateByCode: {},
+  page: 1, pageSize: window.innerWidth <= 680 ? 50 : 100,
+  editingIndex: null, originalSoThe: '', loading: false,
+  editingMaintenanceResults: {}, activeMaintenanceQuarter: 'Q1',
+  editingTemplateCode: '', maintenanceDetailsLoaded: false
 };
 
-let allData = [];
-let editingIndex = null;
-let editingOriginalSoThe = '';
-let lastScrollY = 0;
-let loading = false;
-
-function setStatus(text, ok = true) {
-  statusEl.textContent = 'Trạng thái: ' + text;
-  statusEl.style.color = ok ? '#087f5b' : '#c0392b';
+function setStatus(text,type='info'){
+  const el=$('statusText');el.textContent=text;el.classList.remove('status-ok','status-error');
+  if(type==='ok')el.classList.add('status-ok');if(type==='error')el.classList.add('status-error');
 }
 
-function clean(value) {
-  return value === undefined || value === null ? '' : String(value).trim();
-}
-
-function comparable(value) {
-  return clean(value).toUpperCase();
-}
-
-function stripLeadingApostrophe(value) {
-  const text = clean(value);
-  return text.startsWith("'") ? text.slice(1) : text;
-}
-
-function toBool(value) {
-  if (value === true || value === 1) return true;
-  if (value === false || value === 0 || value === null || value === undefined || value === '') return false;
-  return ['true', 'yes', 'y', '1', 'x', '✓', '✅', 'đã', 'da', 'ok'].includes(String(value).trim().toLowerCase());
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-function formatHistoryCode(value) {
-  const code = clean(value);
-  if (!code) return '';
-
-  // Nếu Số thẻ đã có VH, chỉ chuẩn hóa lại thành dạng VH-...
-  if (/^VH(?:[\s-]*)(.*)$/i.test(code)) {
-    const suffix = code.replace(/^VH[\s-]*/i, '');
-    return suffix ? `VH-${suffix}` : 'VH';
-  }
-
-  return `VH-${code}`;
-}
-
-function maintenanceLines(value) {
-  const text = String(value ?? '')
-    .replace(/\r\n?/g, '\n')
-    .trim();
-
-  if (!text) return [];
-
-  return text
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean)
-    // Bỏ số thứ tự/gạch đầu dòng cũ để tránh hiển thị kiểu 1. 1. ...
-    .map(line => line.replace(/^(?:\d+\s*[.)-]|[-•▪])\s*/, '').trim())
-    .filter(Boolean);
-}
-
-function formatMaintenanceHtml(value, preview = false) {
-  const items = maintenanceLines(value);
-  if (!items.length) return '';
-
-  const className = preview
-    ? 'maintenance-list maintenance-list-preview'
-    : 'maintenance-list';
-
-  return `<ol class="${className}">${items
-    .map(item => `<li>${escapeHtml(item)}</li>`)
-    .join('')}</ol>`;
-}
-
-function formatDateDDMMYYYY(value) {
-  if (value === undefined || value === null || value === '') return '';
-  const text = String(value).trim();
-
-  let match = text.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
-  if (match) return `${match[1].padStart(2, '0')}/${match[2].padStart(2, '0')}/${match[3]}`;
-
-  match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (match) return `${match[3].padStart(2, '0')}/${match[2].padStart(2, '0')}/${match[1]}`;
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return text;
-
-  return [
-    String(date.getDate()).padStart(2, '0'),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    date.getFullYear()
-  ].join('/');
-}
-
-function todayText() {
-  const date = new Date();
-  return [
-    String(date.getDate()).padStart(2, '0'),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    date.getFullYear()
-  ].join('/');
-}
-
-function normalizeRow(row) {
-  return {
-    sheetRow: Number(row?.sheetRow || 0),
-    soThe: clean(row?.soThe ?? row?.['Số thẻ']),
-    soMay: stripLeadingApostrophe(row?.soMay ?? row?.['Số máy']),
-    loaiMay: clean(row?.loaiMay ?? row?.['Loại máy']),
-    viTri: clean(row?.viTri ?? row?.['Vị trí']),
-    ghiChu: clean(row?.ghiChu ?? row?.donViMuon ?? row?.['Đơn vị mượn'] ?? row?.['Ghi chú']),
-    daKiemKe: toBool(row?.daKiemKe ?? row?.['Kiểm kê'] ?? row?.['Đã KK']),
-    chonIn: toBool(row?.chonIn ?? row?.['In mã QR'] ?? row?.['In QR']),
-    ngayMua: formatDateDDMMYYYY(row?.ngayMua ?? row?.['Ngày mua/mượn'] ?? row?.['Ngày mua']),
-    noiMua: clean(row?.noiMua ?? row?.['Nơi mua']),
-    bdQ1: toBool(row?.bdQ1),
-    bdQ2: toBool(row?.bdQ2),
-    bdQ3: toBool(row?.bdQ3),
-    bdQ4: toBool(row?.bdQ4),
-    bdNgayQ1: formatDateDDMMYYYY(row?.bdNgayQ1),
-    bdNgayQ2: formatDateDDMMYYYY(row?.bdNgayQ2),
-    bdNgayQ3: formatDateDDMMYYYY(row?.bdNgayQ3),
-    bdNgayQ4: formatDateDDMMYYYY(row?.bdNgayQ4),
-    suaChua: clean(
-      row?.suaChua ??
-      row?.noiDungBaoDuong ??
-      row?.['Nội dung bảo dưỡng'] ??
-      row?.['Sửa chữa']
-    )
-  };
-}
-
-function jsonpRequest(params, timeoutMs = 25000) {
-  return new Promise((resolve, reject) => {
-    const callback = '__gas_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const script = document.createElement('script');
-    let finished = false;
-
-    const cleanup = () => {
-      if (finished) return;
-      finished = true;
-      clearTimeout(timer);
-      delete window[callback];
-      script.remove();
-    };
-
-    window[callback] = response => {
-      cleanup();
-      if (response && response.success) resolve(response);
-      else reject(new Error(response?.message || 'Google Apps Script trả về lỗi'));
-    };
-
-    const query = new URLSearchParams({ ...params, callback, _: String(Date.now()) });
-    script.src = GAS_URL + '?' + query.toString();
-    script.onerror = () => {
-      cleanup();
-      reject(new Error('Không thể kết nối Google Apps Script'));
-    };
-
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(new Error('Quá thời gian chờ phản hồi từ Google Apps Script'));
-    }, timeoutMs);
-
+function jsonpRequest(params,timeoutMs=40000){
+  return new Promise((resolve,reject)=>{
+    const callback='__gas_cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const script=document.createElement('script');let done=false;
+    const cleanup=()=>{if(done)return;done=true;clearTimeout(timer);delete window[callback];script.remove()};
+    window[callback]=response=>{cleanup();if(response&&response.success)resolve(response);else reject(new Error(response?.message||'Apps Script trả về lỗi'))};
+    const query=new URLSearchParams({...params,callback,_:String(Date.now())});
+    script.src=GAS_URL+'?'+query.toString();
+    script.onerror=()=>{cleanup();reject(new Error('Không kết nối được Google Apps Script'))};
+    const timer=setTimeout(()=>{cleanup();reject(new Error('Quá thời gian chờ Google Apps Script'))},timeoutMs);
     document.head.appendChild(script);
   });
 }
 
-async function loadData() {
-  if (loading) return;
-  loading = true;
-  document.getElementById('btnRefresh').disabled = true;
-  setStatus('Đang tải dữ liệu...');
-
-  try {
-    const response = await jsonpRequest({ action: 'load' }, 35000);
-    allData = Array.isArray(response.data) ? response.data.map(normalizeRow) : [];
-    renderTable();
-
-    if (Array.isArray(response.duplicates) && response.duplicates.length) {
-      setStatus(`Đã tải ${allData.length} dòng nhưng có Số thẻ bị trùng: ${response.duplicates.join(', ')}`, false);
-    } else {
-      setStatus(`Đã tải ${allData.length} dòng`);
-    }
-
-    highlightFromHash();
-  } catch (error) {
-    setStatus(error.message, false);
-  } finally {
-    loading = false;
-    document.getElementById('btnRefresh').disabled = false;
+async function api(action,params={},timeoutMs=40000){
+  try{return await jsonpRequest({action,token:state.token,...params},timeoutMs)}
+  catch(error){
+    if(/đăng nhập|token|hết hạn|chữ ký/i.test(error.message)){logout(false)}
+    throw error;
   }
 }
 
-function rowMatches(row, filter, search) {
-  if (filter === 'daKiemKe' && !row.daKiemKe) return false;
-  if (filter === 'chuaKiemKe' && row.daKiemKe) return false;
-  if (filter === 'daIn' && !row.chonIn) return false;
-  if (filter === 'chuaIn' && row.chonIn) return false;
+async function login(){
+  $('loginError').textContent='';
+  try{
+    const result=await jsonpRequest({action:'login',password:$('passwordInput').value});
+    state.token=result.token;localStorage.setItem(TOKEN_KEY,state.token);$('loginOverlay').style.display='none';$('appRoot').classList.remove('hidden');$('btnLogout').classList.remove('hidden');$('rolePill').textContent='Đã đăng nhập';await loadData();
+  }catch(error){$('loginError').textContent=error.message;$('passwordInput').value='';$('passwordInput').focus()}
+}
 
-  if (search) {
-    const haystack = [
-      row.soThe, row.soMay, row.loaiMay, row.viTri, row.ghiChu,
-      row.noiMua, row.ngayMua, row.suaChua,
-      row.bdNgayQ1, row.bdNgayQ2, row.bdNgayQ3, row.bdNgayQ4
-    ].join(' ').toLowerCase();
+function logout(clearHash=false){
+  state.token='';localStorage.removeItem(TOKEN_KEY);$('appRoot').classList.add('hidden');$('btnLogout').classList.add('hidden');$('loginOverlay').style.display='flex';$('rolePill').textContent='Chưa đăng nhập';if(clearHash)location.hash='';setTimeout(()=>$('passwordInput').focus(),50)
+}
 
-    if (!haystack.includes(search)) return false;
-  }
+async function loadData(){
+  if(state.loading)return;state.loading=true;$('btnRefresh').disabled=true;setStatus('Đang tải dữ liệu...');
+  try{
+    const result=await api('load');
+    state.allData=Array.isArray(result.data)?result.data:[];
+    state.templates=Array.isArray(result.templates)?result.templates:[];
+    state.templateByCode={};state.templates.forEach(t=>state.templateByCode[t.code]=t);
+    fillTemplateSelect();state.page=1;render();
+    if(result.duplicates?.length)setStatus('Có số thẻ trùng: '+result.duplicates.join(', '),'error');else setStatus(`Đã tải ${state.allData.length} máy lúc ${result.loadedAt}`,'ok');
+    focusFromHash();
+  }catch(error){setStatus(error.message,'error');alert(error.message)}
+  finally{state.loading=false;$('btnRefresh').disabled=false}
+}
 
+function fillTemplateSelect(){
+  const select=$('m_maMauBaoTri');select.innerHTML='<option value="">Tự động theo MAP / Loại máy</option>'+state.templates.map(t=>`<option value="${esc(t.code)}">${esc(t.code)} — ${esc(t.name)}</option>`).join('');
+}
+
+function rowMatches(row,filter,search){
+  if(filter==='daKiemKe'&&!row.daKiemKe)return false;if(filter==='chuaKiemKe'&&row.daKiemKe)return false;if(filter==='daIn'&&!row.chonIn)return false;if(filter==='chuaIn'&&row.chonIn)return false;
+  if(filter==='daXacNhanMau'&&row.trangThaiPhanLoai!=='Đã xác nhận')return false;
+  if(filter==='canXacNhanMau'&&!/Gợi ý|cần xác nhận/i.test(row.trangThaiPhanLoai||''))return false;
+  if(filter==='chuaCoMau'&&row.maMauBaoTri)return false;
+  if(search){const hay=[row.soThe,row.soMay,row.loaiMay,row.viTri,row.ghiChu,row.noiMua,row.maMauBaoTri,row.nhomMayBaoTri,row.trangThaiPhanLoai].join(' ').toLowerCase();if(!hay.includes(search))return false}
   return true;
 }
 
-function renderTable() {
-  const filter = filterBox.value;
-  const search = clean(searchBox.value).toLowerCase();
-  const rows = [];
-  let visibleCount = 0;
+function render(){
+  const filter=$('filterBox').value;const search=clean($('searchBox').value).toLowerCase();
+  state.filtered=state.allData.filter(row=>rowMatches(row,filter,search));
+  const pageCount=Math.max(1,Math.ceil(state.filtered.length/state.pageSize));if(state.page>pageCount)state.page=pageCount;if(state.page<1)state.page=1;
+  const start=(state.page-1)*state.pageSize;const rows=state.filtered.slice(start,start+state.pageSize);
+  $('dataTable').querySelector('tbody').innerHTML=rows.map((row,i)=>rowHtml(row,start+i)).join('');
+  $('resultInfo').textContent=`Tìm thấy ${state.filtered.length} / ${state.allData.length} máy`;
+  $('pagerInfo').textContent=`Trang ${state.page}/${pageCount}`;
+  ['btnPrev','btnPrevBottom'].forEach(id=>$(id).disabled=state.page<=1);['btnNext','btnNextBottom'].forEach(id=>$(id).disabled=state.page>=pageCount);
+  renderKpis();highlightHashRow();
+}
 
-  allData.forEach((row, index) => {
-    if (!rowMatches(row, filter, search)) return;
-    visibleCount++;
+function badgeClass(status){if(status==='Đã xác nhận')return'badge-confirmed';if(!status||status==='Cần phân loại')return'badge-missing';return'badge-suggested'}
+function rowHtml(row,filteredIndex){
+  const globalIndex=state.allData.indexOf(row);const q=(done,date)=>done?`✓<small style="display:block">${esc(date||'')}</small>`:'–';
+  return `<tr data-tag="${esc(row.soThe)}" data-index="${globalIndex}">
+    <td>${filteredIndex+1}</td><td class="tag-cell">${esc(displayTag(row.soThe))}</td><td>${esc(row.soMay)}</td>
+    <td><div class="cell-wrap col-type">${esc(row.loaiMay)}</div></td><td><div class="cell-wrap">${esc(row.viTri)}</div></td><td><div class="cell-wrap col-note">${esc(row.ghiChu)}</div></td>
+    <td><b>${esc(row.maMauBaoTri||'—')}</b><span class="template-name">${esc(row.nhomMayBaoTri||'Chưa phân loại')}</span></td>
+    <td><span class="badge ${badgeClass(row.trangThaiPhanLoai)}">${esc(row.trangThaiPhanLoai||'Cần phân loại')}</span></td>
+    <td><button class="action-btn" data-edit="${globalIndex}">Sửa</button></td>
+    <td><input class="small-check row-check" data-field="daKiemKe" type="checkbox" ${row.daKiemKe?'checked':''}></td>
+    <td><input class="small-check row-check" data-field="chonIn" type="checkbox" ${row.chonIn?'checked':''}></td>
+    <td>${esc(row.ngayMua)}</td><td><div class="cell-wrap">${esc(row.noiMua)}</div></td><td>${q(row.bdQ1,row.bdNgayQ1)}</td><td>${q(row.bdQ2,row.bdNgayQ2)}</td><td>${q(row.bdQ3,row.bdNgayQ3)}</td><td>${q(row.bdQ4,row.bdNgayQ4)}</td>
+  </tr>`;
+}
 
-    rows.push(`
-      <tr data-index="${index}" data-key="${escapeHtml(row.soThe)}">
-        <td>${index + 1}</td>
-        <td class="col-so-the">${escapeHtml(row.soThe)}</td>
-        <td class="col-so-may"><div class="clamp-2">${escapeHtml(row.soMay)}</div></td>
-        <td class="colLoaiMay"><div class="clamp-2">${escapeHtml(row.loaiMay)}</div></td>
-        <td class="col-vi-tri"><div class="clamp-2">${escapeHtml(row.viTri)}</div></td>
-        <td class="col-ghi-chu"><div class="clamp-2">${escapeHtml(row.ghiChu)}</div></td>
-        <td><button class="row-action" data-act="edit" data-i="${index}">✏️</button></td>
-        <td><input type="checkbox" class="small-checkbox row-check" data-field="daKiemKe" ${row.daKiemKe ? 'checked' : ''}></td>
-        <td><input type="checkbox" class="small-checkbox row-check" data-field="chonIn" ${row.chonIn ? 'checked' : ''}></td>
-        <td>${escapeHtml(row.ngayMua)}</td>
-        <td class="col-noi-mua"><div class="clamp-2">${escapeHtml(row.noiMua)}</div></td>
-        <td><input type="checkbox" class="small-checkbox row-check" data-field="bdQ1" ${row.bdQ1 ? 'checked' : ''} title="${escapeHtml(row.bdNgayQ1)}"></td>
-        <td><input type="checkbox" class="small-checkbox row-check" data-field="bdQ2" ${row.bdQ2 ? 'checked' : ''} title="${escapeHtml(row.bdNgayQ2)}"></td>
-        <td><input type="checkbox" class="small-checkbox row-check" data-field="bdQ3" ${row.bdQ3 ? 'checked' : ''} title="${escapeHtml(row.bdNgayQ3)}"></td>
-        <td><input type="checkbox" class="small-checkbox row-check" data-field="bdQ4" ${row.bdQ4 ? 'checked' : ''} title="${escapeHtml(row.bdNgayQ4)}"></td>
-        <td class="col-sua-chua">${formatMaintenanceHtml(row.suaChua, true)}</td>
-      </tr>
-    `);
+function renderKpis(){
+  const confirmed=state.allData.filter(r=>r.trangThaiPhanLoai==='Đã xác nhận').length;
+  const missing=state.allData.filter(r=>!r.maMauBaoTri).length;
+  const items=[['Tổng máy',state.allData.length],['Đã kiểm kê',state.allData.filter(r=>r.daKiemKe).length],['Đã chọn QR',state.allData.filter(r=>r.chonIn).length],['Mẫu đã xác nhận',confirmed],['Cần phân loại',missing],['Số mẫu bảo trì',state.templates.length]];
+  $('kpiGrid').innerHTML=items.map(([label,value])=>`<div class="kpi"><span>${label}</span><b>${value}</b></div>`).join('');
+}
+
+function formatLines(value){const lines=clean(value).split(/\r?\n/).map(x=>x.trim()).filter(Boolean);return lines.length?`<ol style="margin:0;padding-left:20px">${lines.map(x=>`<li>${esc(x.replace(/^(?:\d+[.)-]|[-•])\s*/,''))}</li>`).join('')}</ol>`:''}
+
+function normalizeMaintenanceResults(value){
+  let source=value;
+  if(!source)return {};
+  if(typeof source==='string'){
+    try{source=JSON.parse(source)}catch(_){return {}}
+  }
+  if(!source||typeof source!=='object'||Array.isArray(source))return {};
+
+  const output={};
+  ['Q1','Q2','Q3','Q4'].forEach(q=>{
+    const item=source[q];
+    if(!item||typeof item!=='object')return;
+    const results={};
+    const notes={};
+
+    if(item.r&&typeof item.r==='object'){
+      Object.keys(item.r).forEach(key=>{
+        const code=normalizeMaintenanceResultCode(item.r[key]);
+        if(code)results[String(key)]=code;
+      });
+    }
+    if(item.n&&typeof item.n==='object'){
+      Object.keys(item.n).forEach(key=>{
+        const note=clean(item.n[key]);
+        if(note)notes[String(key)]=note;
+      });
+    }
+
+    // Hỗ trợ cấu trúc cũ dạng items[] nếu từng dùng thử trước đó.
+    if(Array.isArray(item.items)){
+      item.items.forEach((detail,index)=>{
+        const key=String(detail.no||index+1);
+        const code=normalizeMaintenanceResultCode(detail.result);
+        const note=clean(detail.note);
+        if(code)results[key]=code;
+        if(note)notes[key]=note;
+      });
+    }
+
+    output[q]={
+      d:clean(item.d||item.date),
+      m:clean(item.m||item.templateCode),
+      r:results,
+      n:notes
+    };
   });
-
-  tbody.innerHTML = rows.join('');
-  searchInfo.textContent = `Tìm thấy ${visibleCount} dòng`;
-  updateMasterCheckboxes();
+  return output;
 }
 
-function getVisibleIndexes() {
-  return Array.from(tbody.querySelectorAll('tr')).map(row => Number(row.dataset.index));
+function normalizeMaintenanceResultCode(value){
+  const text=clean(value).toUpperCase();
+  if(['D','DAT','ĐẠT','ĐẠT YÊU CẦU'].includes(text))return'D';
+  if(['K','KD','KHONG_DAT','KHÔNG ĐẠT','KHÔNG ĐẠT YÊU CẦU'].includes(text))return'K';
+  return'';
 }
 
-function updateMasterCheckboxes() {
-  const indexes = getVisibleIndexes();
-  const mapping = {
-    checkAllQR: 'chonIn',
-    checkAllQ1: 'bdQ1',
-    checkAllQ2: 'bdQ2',
-    checkAllQ3: 'bdQ3',
-    checkAllQ4: 'bdQ4'
-  };
+function currentModalTemplate(){
+  const code=clean($('m_maMauBaoTri').value)||state.editingTemplateCode;
+  return state.templateByCode[code]||null;
+}
 
-  Object.entries(mapping).forEach(([id, field]) => {
-    const checkbox = document.getElementById(id);
-    if (!indexes.length) {
-      checkbox.checked = false;
-      checkbox.indeterminate = false;
+function checkedModalQuarters(){
+  return ['Q1','Q2','Q3','Q4'].filter(q=>$('m_bd'+q).checked);
+}
+
+function ensureQuarterEvaluation(quarter){
+  const template=currentModalTemplate();
+  if(!template)return null;
+  if(!state.editingMaintenanceResults[quarter]){
+    state.editingMaintenanceResults[quarter]={d:'',m:template.code,r:{},n:{}};
+  }
+  const data=state.editingMaintenanceResults[quarter];
+  data.d=clean($('m_bdNgay'+quarter).value)||clean(data.d);
+  data.m=template.code;
+  data.r=data.r&&typeof data.r==='object'?data.r:{};
+  data.n=data.n&&typeof data.n==='object'?data.n:{};
+  return data;
+}
+
+function maintenanceResultLabel(code){
+  return code==='D'?'Đạt':code==='K'?'Không đạt':'Chưa đánh giá';
+}
+
+function renderMaintenanceEvaluation(){
+  const template=currentModalTemplate();
+  const checked=checkedModalQuarters();
+  const tabs=$('maintenanceQuarterTabs');
+  const checklist=$('maintenanceChecklist');
+  const hint=$('maintenanceEvalHint');
+
+  tabs.innerHTML=['Q1','Q2','Q3','Q4'].map(q=>{
+    const enabled=checked.includes(q);
+    const active=enabled&&state.activeMaintenanceQuarter===q;
+    return `<button type="button" class="maintenance-quarter-tab ${active?'active':''}" data-maint-quarter="${q}" ${enabled?'':'disabled'}>${q}</button>`;
+  }).join('');
+
+  if(!template){
+    hint.textContent='Máy chưa có Mã mẫu bảo trì. Hãy chọn Mã mẫu trước.';
+    checklist.innerHTML='<div class="maintenance-eval-empty">Chưa có mẫu để hiển thị danh sách nội dung bảo dưỡng.</div>';
+    return;
+  }
+
+  if(!checked.length){
+    hint.textContent=`Mẫu ${template.code} — ${template.name}. Hãy đánh dấu một quý bên trên.`;
+    checklist.innerHTML='<div class="maintenance-eval-empty">Chưa chọn quý bảo dưỡng. Khi chọn Q1, Q2, Q3 hoặc Q4, danh sách nội dung của đúng loại máy sẽ xuất hiện tại đây.</div>';
+    return;
+  }
+
+  if(!checked.includes(state.activeMaintenanceQuarter))state.activeMaintenanceQuarter=checked[0];
+  const quarter=state.activeMaintenanceQuarter;
+  const quarterData=ensureQuarterEvaluation(quarter);
+  const details=Array.isArray(template.details)?template.details:[];
+  const answered=details.filter((d,i)=>quarterData.r[String(d.no||i+1)]).length;
+  hint.textContent=`${template.code} — ${template.name} · ${quarter} · Đã đánh giá ${answered}/${details.length} nội dung.`;
+
+  if(!details.length){
+    checklist.innerHTML='<div class="maintenance-eval-empty">Mẫu này chưa có nội dung trong sheet CT_MAU_BAO_TRI.</div>';
+    return;
+  }
+
+  checklist.innerHTML=`<div class="maintenance-eval-summary"><b>${quarter}</b> — Ngày: ${esc(clean($('m_bdNgay'+quarter).value)||'chưa nhập')}</div>`+
+    details.map((detail,index)=>{
+      const no=String(detail.no||index+1);
+      const result=quarterData.r[no]||'';
+      const note=quarterData.n[no]||'';
+      const radioName=`maint_${quarter}_${no.replace(/[^A-Za-z0-9_-]/g,'_')}`;
+      return `<div class="maintenance-item">
+        <div class="maintenance-item-title"><span class="maintenance-item-no">${esc(no)}</span><span>${esc(detail.content||'')}</span></div>
+        <div class="maintenance-result-options">
+          <label class="maintenance-result-option pass"><input type="radio" name="${radioName}" data-maint-result="1" data-quarter="${quarter}" data-no="${esc(no)}" value="D" ${result==='D'?'checked':''}>✓ Đạt</label>
+          <label class="maintenance-result-option fail"><input type="radio" name="${radioName}" data-maint-result="1" data-quarter="${quarter}" data-no="${esc(no)}" value="K" ${result==='K'?'checked':''}>✕ Không đạt</label>
+        </div>
+        <input class="maintenance-result-note" type="text" data-maint-note="1" data-quarter="${quarter}" data-no="${esc(no)}" value="${esc(note)}" placeholder="Ghi chú cho nội dung này">
+      </div>`;
+    }).join('');
+}
+
+async function openModal(index=null){
+  state.editingIndex=index;
+  const row=index===null?{}:state.allData[index];
+  state.originalSoThe=row.soThe||'';
+  state.editingTemplateCode=row.maMauBaoTri||'';
+  state.editingMaintenanceResults=normalizeMaintenanceResults(row.ketQuaBaoDuongChiTiet);
+  state.maintenanceDetailsLoaded=index===null;
+  state.activeMaintenanceQuarter=['Q1','Q2','Q3','Q4'].find(q=>row['bd'+q])||'Q1';
+
+  $('modalTitle').textContent=index===null?'Thêm máy':'Chỉnh sửa '+displayTag(row.soThe);
+  ['soThe','soMay','loaiMay','viTri','ngayMua','noiMua','ghiChu','ghiChuPhanLoai','bdNgayQ1','bdNgayQ2','bdNgayQ3','bdNgayQ4'].forEach(name=>{$('m_'+name).value=row[name]||''});
+  $('m_daKiemKe').checked=!!row.daKiemKe;
+  $('m_chonIn').checked=!!row.chonIn;
+  ['Q1','Q2','Q3','Q4'].forEach(q=>$('m_bd'+q).checked=!!row['bd'+q]);
+  $('m_maMauBaoTri').value=row.maMauBaoTri||'';
+  $('m_trangThaiPhanLoai').value=row.trangThaiPhanLoai||'Gợi ý tự động - cần xác nhận';
+
+  $('editModal').classList.add('open');
+  document.body.classList.add('modal-open');
+  renderMaintenanceEvaluation();
+  setTimeout(()=>$('m_soThe').focus(),60);
+
+  // Dữ liệu đánh giá chi tiết được tải riêng theo một máy để trang chính không bị nặng.
+  if(index!==null&&row.soThe){
+    $('btnSave').disabled=true;
+    $('maintenanceEvalHint').textContent='Đang tải kết quả bảo dưỡng chi tiết của máy...';
+    try{
+      const result=await api('getOne',{soThe:row.soThe});
+      if(state.editingIndex!==index)return;
+      const fullRecord={...row,...result.record};
+      state.allData[index]=fullRecord;
+      state.editingTemplateCode=fullRecord.maMauBaoTri||state.editingTemplateCode;
+      state.editingMaintenanceResults=normalizeMaintenanceResults(fullRecord.ketQuaBaoDuongChiTiet);
+      state.maintenanceDetailsLoaded=true;
+      $('m_maMauBaoTri').value=fullRecord.maMauBaoTri||'';
+      renderMaintenanceEvaluation();
+    }catch(error){
+      state.maintenanceDetailsLoaded=false;
+      $('maintenanceChecklist').innerHTML='<div class="maintenance-eval-empty">Không tải được kết quả chi tiết: '+esc(error.message)+'</div>';
+    }finally{
+      $('btnSave').disabled=false;
+    }
+  }
+}
+
+function closeModal(){
+  $('editModal').classList.remove('open');
+  document.body.classList.remove('modal-open');
+  state.editingIndex=null;
+  state.editingMaintenanceResults={};
+}
+
+function maintenanceResultsForSave(){
+  const template=currentModalTemplate();
+  const output=normalizeMaintenanceResults(state.editingMaintenanceResults);
+  ['Q1','Q2','Q3','Q4'].forEach(q=>{
+    if(!$('m_bd'+q).checked){
+      delete output[q];
       return;
     }
-
-    const checkedCount = indexes.filter(index => allData[index]?.[field]).length;
-    checkbox.checked = checkedCount === indexes.length;
-    checkbox.indeterminate = checkedCount > 0 && checkedCount < indexes.length;
+    if(!template)return;
+    if(!output[q])output[q]={d:'',m:template.code,r:{},n:{}};
+    output[q].d=clean($('m_bdNgay'+q).value);
+    output[q].m=template.code;
+    output[q].r=output[q].r||{};
+    output[q].n=output[q].n||{};
   });
+  return output;
 }
 
-async function patchCheckbox(input) {
-  const tr = input.closest('tr');
-  const index = Number(tr?.dataset.index);
-  const field = input.dataset.field;
-  const row = allData[index];
-
-  if (!row || !row.soThe || !field) {
-    input.checked = !input.checked;
-    alert('Không xác định được Số thẻ cần cập nhật. Hãy tải lại dữ liệu.');
-    return;
-  }
-
-  const oldValue = Boolean(row[field]);
-  const newValue = input.checked;
-  input.disabled = true;
-  tr.classList.add('pending-row');
-  row[field] = newValue;
-
-  try {
-    const response = await jsonpRequest({
-      action: 'patch',
-      data: JSON.stringify({ soThe: row.soThe, changes: { [field]: newValue } })
-    });
-
-    allData[index] = normalizeRow(response.record);
-    setStatus(`Đã lưu số thẻ ${row.soThe}`);
-  } catch (error) {
-    row[field] = oldValue;
-    setStatus(error.message, false);
-    alert('Không lưu được: ' + error.message);
-  } finally {
-    renderTable();
-    highlightFromHash();
-  }
-}
-
-async function batchSetVisible(field, value, masterCheckbox) {
-  const indexes = getVisibleIndexes();
-  const keys = indexes.map(index => allData[index]?.soThe).filter(Boolean);
-
-  if (!keys.length) {
-    masterCheckbox.checked = false;
-    return;
-  }
-
-  const fieldNames = {
-    chonIn: 'In QR',
-    bdQ1: 'Bảo dưỡng Q1',
-    bdQ2: 'Bảo dưỡng Q2',
-    bdQ3: 'Bảo dưỡng Q3',
-    bdQ4: 'Bảo dưỡng Q4'
-  };
-
-  const actionText = value ? 'đánh dấu' : 'bỏ đánh dấu';
-  const confirmed = confirm(`${actionText} ${fieldNames[field]} cho ${keys.length} dòng đang hiển thị?`);
-  if (!confirmed) {
-    masterCheckbox.checked = !value;
-    updateMasterCheckboxes();
-    return;
-  }
-
-  masterCheckbox.disabled = true;
-  setStatus(`Đang cập nhật ${keys.length} dòng...`);
-
-  try {
-    for (let i = 0; i < keys.length; i += BATCH_SIZE) {
-      const chunk = keys.slice(i, i + BATCH_SIZE);
-      await jsonpRequest({
-        action: 'batchSet',
-        data: JSON.stringify({ keys: chunk, field, value })
-      }, 35000);
-    }
-
-    const keySet = new Set(keys.map(comparable));
-    allData.forEach(row => {
-      if (!keySet.has(comparable(row.soThe))) return;
-      row[field] = value;
-
-      if (/^bdQ[1-4]$/.test(field)) {
-        const dateField = 'bdNgay' + field.slice(2);
-        row[dateField] = value ? (row[dateField] || todayText()) : '';
-      }
-    });
-
-    setStatus(`Đã cập nhật ${keys.length} dòng`);
-  } catch (error) {
-    setStatus(error.message, false);
-    alert('Cập nhật hàng loạt thất bại: ' + error.message + '\nDữ liệu chưa chắc đã cập nhật hết, hãy bấm Tải lại từ Sheet.');
-    await loadData();
-  } finally {
-    masterCheckbox.disabled = false;
-    renderTable();
-    highlightFromHash();
-  }
-}
-
-function openEditModal(index = null) {
-  lastScrollY = window.scrollY;
-  editingIndex = index;
-  editingOriginalSoThe = index === null ? '' : allData[index]?.soThe || '';
-  const row = index === null ? normalizeRow({}) : allData[index];
-
-  document.getElementById('modalTitle').textContent = index === null ? '➕ Thêm máy' : '✏️ Chỉnh sửa máy';
-  saveBtn.textContent = index === null ? 'Thêm mới' : 'Cập nhật';
-
-  fields.soThe.value = row.soThe;
-  fields.soMay.value = row.soMay;
-  fields.loaiMay.value = row.loaiMay;
-  fields.viTri.value = row.viTri;
-  fields.ghiChu.value = row.ghiChu;
-  fields.daKiemKe.checked = row.daKiemKe;
-  fields.chonIn.checked = row.chonIn;
-  fields.ngayMua.value = row.ngayMua;
-  fields.noiMua.value = row.noiMua;
-  fields.bdQ1.checked = row.bdQ1;
-  fields.bdQ2.checked = row.bdQ2;
-  fields.bdQ3.checked = row.bdQ3;
-  fields.bdQ4.checked = row.bdQ4;
-  fields.bdNgayQ1.value = row.bdNgayQ1;
-  fields.bdNgayQ2.value = row.bdNgayQ2;
-  fields.bdNgayQ3.value = row.bdNgayQ3;
-  fields.bdNgayQ4.value = row.bdNgayQ4;
-  fields.suaChua.value = row.suaChua;
-
-  modal.style.display = 'flex';
-  document.body.classList.add('modal-open');
-  setTimeout(() => fields.soThe.focus(), 50);
-}
-
-function closeModal() {
-  modal.style.display = 'none';
-  document.body.classList.remove('modal-open');
-  editingIndex = null;
-  editingOriginalSoThe = '';
-  saveBtn.disabled = false;
-  window.scrollTo(0, lastScrollY);
-}
-
-function modalData() {
+function modalData(){
   return {
-    soThe: clean(fields.soThe.value),
-    soMay: stripLeadingApostrophe(fields.soMay.value),
-    loaiMay: clean(fields.loaiMay.value),
-    viTri: clean(fields.viTri.value),
-    ghiChu: clean(fields.ghiChu.value),
-    daKiemKe: fields.daKiemKe.checked,
-    chonIn: fields.chonIn.checked,
-    ngayMua: formatDateDDMMYYYY(fields.ngayMua.value),
-    noiMua: clean(fields.noiMua.value),
-    bdQ1: fields.bdQ1.checked,
-    bdQ2: fields.bdQ2.checked,
-    bdQ3: fields.bdQ3.checked,
-    bdQ4: fields.bdQ4.checked,
-    bdNgayQ1: formatDateDDMMYYYY(fields.bdNgayQ1.value),
-    bdNgayQ2: formatDateDDMMYYYY(fields.bdNgayQ2.value),
-    bdNgayQ3: formatDateDDMMYYYY(fields.bdNgayQ3.value),
-    bdNgayQ4: formatDateDDMMYYYY(fields.bdNgayQ4.value),
-    suaChua: clean(fields.suaChua.value)
+    sheetRow:state.editingIndex===null?'':state.allData[state.editingIndex].sheetRow,
+    soThe:clean($('m_soThe').value),soMay:clean($('m_soMay').value),loaiMay:clean($('m_loaiMay').value),viTri:clean($('m_viTri').value),
+    ngayMua:clean($('m_ngayMua').value),noiMua:clean($('m_noiMua').value),ghiChu:clean($('m_ghiChu').value),
+    daKiemKe:$('m_daKiemKe').checked,chonIn:$('m_chonIn').checked,
+    bdQ1:$('m_bdQ1').checked,bdNgayQ1:clean($('m_bdNgayQ1').value),
+    bdQ2:$('m_bdQ2').checked,bdNgayQ2:clean($('m_bdNgayQ2').value),
+    bdQ3:$('m_bdQ3').checked,bdNgayQ3:clean($('m_bdNgayQ3').value),
+    bdQ4:$('m_bdQ4').checked,bdNgayQ4:clean($('m_bdNgayQ4').value),
+    maMauBaoTri:clean($('m_maMauBaoTri').value),trangThaiPhanLoai:clean($('m_trangThaiPhanLoai').value),
+    ghiChuPhanLoai:clean($('m_ghiChuPhanLoai').value),
+    ketQuaBaoDuongChiTiet:maintenanceResultsForSave()
   };
 }
 
-async function saveModal() {
+async function saveModal(event){
+  event.preventDefault();
+
   const data = modalData();
 
-  if (!data.soThe) {
-    alert('Số thẻ không được để trống.');
-    fields.soThe.focus();
+  if(!data.soThe){
+    alert('Số thẻ không được để trống');
+    $('m_soThe').focus();
     return;
   }
 
-  const duplicateIndex = allData.findIndex((row, index) =>
-    comparable(row.soThe) === comparable(data.soThe) && index !== editingIndex
+  const editingIndex = state.editingIndex;
+  const isAdding = editingIndex === null;
+  const originalSoThe = state.originalSoThe;
+
+  $('btnSave').disabled = true;
+  $('btnSave').textContent = 'Đang lưu...';
+
+  setStatus('Đang lưu dữ liệu...');
+
+  try{
+    const result = await api('upsert',{
+      data:JSON.stringify({
+        mode:isAdding ? 'add' : 'edit',
+        originalSoThe:originalSoThe,
+        data:data
+      })
+    });
+
+    const savedRecord = result.record;
+
+    /*
+     * Không gọi loadData().
+     * Chỉ cập nhật dòng vừa lưu trên dữ liệu đang có.
+     */
+    if(isAdding){
+      state.allData.push(savedRecord);
+    }else{
+      state.allData[editingIndex] = savedRecord;
+    }
+
+    closeModal();
+    render();
+    highlightHashRow();
+
+    setStatus(
+      'Đã lưu máy ' + displayTag(savedRecord.soThe),
+      'ok'
+    );
+
+  }catch(error){
+    alert(error.message);
+    setStatus(error.message,'error');
+
+  }finally{
+    $('btnSave').disabled = false;
+    $('btnSave').textContent = 'Lưu';
+  }
+}
+
+async function patchCheckbox(input){const tr=input.closest('tr');const index=Number(tr.dataset.index);const row=state.allData[index];const field=input.dataset.field;const old=!!row[field];row[field]=input.checked;input.disabled=true;tr.classList.add('row-pending');
+  try{const result=await api('patch',{data:JSON.stringify({soThe:row.soThe,changes:{[field]:input.checked}})});state.allData[index]={...row,...result.record};setStatus('Đã lưu '+displayTag(row.soThe),'ok')}
+  catch(error){row[field]=old;alert(error.message);setStatus(error.message,'error')}
+  finally{render()}
+}
+
+async function batchFiltered(field,value){const keys=state.filtered.map(r=>r.soThe).filter(Boolean);if(!keys.length)return;const text=value?'đánh dấu':'bỏ đánh dấu';if(!confirm(`${text} ${field==='chonIn'?'In QR':field} cho ${keys.length} máy đang lọc?`))return;setStatus(`Đang cập nhật ${keys.length} máy...`);
+  try{for(let i=0;i<keys.length;i+=BATCH_SIZE){await api('batchSet',{data:JSON.stringify({keys:keys.slice(i,i+BATCH_SIZE),field,value})})}await loadData();setStatus(`Đã cập nhật ${keys.length} máy`,'ok')}
+  catch(error){alert(error.message);setStatus(error.message,'error')}
+}
+
+async function syncTemplates(){if(!confirm('Đồng bộ Mã mẫu bảo trì cho toàn bộ máy chưa xác nhận? Những dòng “Đã xác nhận” sẽ được giữ nguyên.'))return;setStatus('Đang đồng bộ mẫu bảo trì...');$('btnSyncTemplates').disabled=true;
+  try{const result=await api('syncTemplates',{},120000);await loadData();alert(`Đã đồng bộ: ${result.updated}\nGiữ nguyên đã xác nhận: ${result.confirmedKept}\nChưa xác định: ${result.unresolved}`)}
+  catch(error){alert(error.message);setStatus(error.message,'error')}
+  finally{$('btnSyncTemplates').disabled=false}
+}
+
+function selectedRowsFromInput(){const input=clean($('reportTagInput').value);if(!input){alert('Nhập Số thẻ cần in, ví dụ VH-500 hoặc all');return null}if(input.toLowerCase()==='all')return state.allData.slice();const tags=input.split(',').map(clean).filter(Boolean);const rows=[];const missing=[];tags.forEach(tag=>{const row=state.allData.find(r=>comparableTag(r.soThe)===comparableTag(tag));if(row)rows.push(row);else missing.push(tag)});if(missing.length){alert('Không tìm thấy: '+missing.join(', '));return null}return rows}
+
+function printQr(){const rows=state.allData.filter(r=>r.chonIn);if(!rows.length){alert('Chưa có máy nào được chọn In QR');return}const w=window.open('','_blank');if(!w){alert('Trình duyệt đang chặn cửa sổ in');return}w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>In QR</title><style>@page{size:A4 portrait;margin:4mm}body{font-family:Arial;margin:0;display:grid;grid-template-columns:repeat(5,1fr);gap:2mm}.tem{width:32mm;height:34mm;border:.1px solid #000;display:flex;flex-direction:column;align-items:center;justify-content:center;page-break-inside:avoid}.top{font-size:12px}.bottom{font-size:10px;white-space:nowrap}canvas,img{width:76px!important;height:76px!important}</style></head><body>`);rows.forEach((r,i)=>w.document.write(`<div class="tem"><div class="top">${esc(displayTag(r.soThe))}</div><div id="qr_${i}"></div><div class="bottom">SM: ${esc(r.soMay)}</div></div>`));w.document.write('</body></html>');w.document.close();w.onload=()=>{rows.forEach((r,i)=>new QRCode(w.document.getElementById('qr_'+i),{text:currentBaseUrl()+'#'+encodeURIComponent(r.soThe),width:90,height:90}));setTimeout(()=>{w.focus();w.print()},650)}}
+
+function printHistory(){const rows=selectedRowsFromInput();if(!rows?.length)return;const w=window.open('','_blank');if(!w){alert('Trình duyệt đang chặn cửa sổ in');return}w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lý lịch máy</title><style>@page{size:A4 portrait;margin:16mm}body{font-family:Arial;color:#222}.page{page-break-after:always}.page:last-child{page-break-after:auto}.company{font-size:18px;font-weight:700}.title{text-align:center;font-size:22px;font-weight:800;margin:25px 0 15px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:8px;text-align:left;vertical-align:top}th{width:30%;background:#eee}.sign{text-align:right;margin-top:18px;line-height:1.7}</style></head><body>`);rows.forEach(r=>{const template=state.templateByCode[r.maMauBaoTri];const fields=[['Số thẻ',displayTag(r.soThe)],['Số máy',r.soMay],['Loại máy',r.loaiMay],['Vị trí',r.viTri],['Đơn vị mượn',r.ghiChu],['Ngày mua',r.ngayMua],['Nơi mua',r.noiMua],['Mã mẫu bảo trì',r.maMauBaoTri],['Nhóm máy bảo trì',r.nhomMayBaoTri],['Trạng thái phân loại',r.trangThaiPhanLoai],['Tên thiết bị trên phiếu',template?.reportEquipmentName||''],['Bảo dưỡng Q1',r.bdNgayQ1],['Bảo dưỡng Q2',r.bdNgayQ2],['Bảo dưỡng Q3',r.bdNgayQ3],['Bảo dưỡng Q4',r.bdNgayQ4]];w.document.write(`<section class="page"><div class="company">CÔNG TY TNHH MAY XUẤT KHẨU VIỆT HỒNG</div><div class="title">LÝ LỊCH MÁY ${esc(displayTag(r.soThe))}</div><table>${fields.map(([k,v])=>`<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table><div class="sign">Vĩnh Long, ngày ..... tháng ..... năm .....<br><b style="margin-right:80px">Người lập</b></div></section>`)});w.document.write('</body></html>');w.document.close();setTimeout(()=>{w.focus();w.print()},400)}
+
+function maintenanceQuarterData(row,quarter){
+  const all=normalizeMaintenanceResults(row.ketQuaBaoDuongChiTiet);
+  return all[quarter]||{d:'',m:'',r:{},n:{}};
+}
+
+function maintenanceResultForDetail(row,quarter,detail,index){
+  const data=maintenanceQuarterData(row,quarter);
+  const key=String(detail.no||index+1);
+  return normalizeMaintenanceResultCode(data.r?.[key]);
+}
+
+function excelMaintenanceMark(code){
+  if(code==='D')return '☑ Đạt\n☐ Không đạt';
+  if(code==='K')return '☐ Đạt\n☑ Không đạt';
+  return '☐ Đạt\n☐ Không đạt';
+}
+
+function excelMaintenanceNote(row,detail,index){
+  const notes=[];
+  ['Q1','Q2','Q3','Q4'].forEach(q=>{
+    const data=maintenanceQuarterData(row,q);
+    const key=String(detail.no||index+1);
+    const result=normalizeMaintenanceResultCode(data.r?.[key]);
+    const note=clean(data.n?.[key]);
+    if(result==='K'||note){
+      const label=maintenanceResultLabel(result);
+      notes.push(`${q}: ${label}${note?' - '+note:''}`);
+    }
+  });
+  return notes.join('\n');
+}
+
+async function exportMaintenanceExcel(){
+  let rows = selectedRowsFromInput();
+  if(!rows?.length) return;
+
+  if(typeof ExcelJS === 'undefined'){
+    alert('Chưa tải được thư viện tạo Excel. Hãy kiểm tra kết nối mạng rồi tải lại trang.');
+    return;
+  }
+
+  const unresolved = rows.filter(r =>
+    !r.maMauBaoTri || !state.templateByCode[r.maMauBaoTri]
   );
 
-  if (duplicateIndex >= 0) {
-    alert(`Số thẻ ${data.soThe} đã tồn tại trong dữ liệu đang tải.`);
-    fields.soThe.focus();
+  if(unresolved.length){
+    alert(
+      'Các máy chưa có mẫu bảo trì hợp lệ:\n' +
+      unresolved
+        .map(r => displayTag(r.soThe) + ' — ' + r.loaiMay)
+        .join('\n')
+    );
     return;
   }
 
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Đang lưu...';
-  setStatus(`Đang lưu số thẻ ${data.soThe}...`);
+  const unconfirmed = rows.filter(
+    r => r.trangThaiPhanLoai !== 'Đã xác nhận'
+  );
 
-  try {
-    const mode = editingIndex === null ? 'add' : 'edit';
-    const response = await jsonpRequest({
-      action: 'upsert',
-      data: JSON.stringify({ mode, originalSoThe: editingOriginalSoThe, data })
-    }, 35000);
-
-    const saved = normalizeRow(response.record);
-
-    if (editingIndex === null) allData.push(saved);
-    else allData[editingIndex] = saved;
-
-    setStatus(`Đã lưu số thẻ ${saved.soThe}`);
-    renderTable();
-    closeModal();
-    highlightFromHash();
-  } catch (error) {
-    setStatus(error.message, false);
-    alert('Không lưu được: ' + error.message);
-    saveBtn.disabled = false;
-    saveBtn.textContent = editingIndex === null ? 'Thêm mới' : 'Cập nhật';
-  }
-}
-
-function highlightFromHash(retry = 30) {
-  let code = location.hash.slice(1);
-  if (!code) return;
-
-  try { code = decodeURIComponent(code); } catch (_) {}
-
-  const row = Array.from(tbody.querySelectorAll('tr')).find(tr => comparable(tr.dataset.key) === comparable(code));
-  if (row) {
-    row.classList.add('highlight-row');
-    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if(
+    unconfirmed.length &&
+    !confirm(
+      `${unconfirmed.length} máy chưa có trạng thái “Đã xác nhận”. ` +
+      'Vẫn xuất Excel theo mẫu đang gợi ý?'
+    )
+  ){
     return;
   }
 
-  if (retry > 0) setTimeout(() => highlightFromHash(retry - 1), 150);
-}
-
-function printQrLabels() {
-  const printData = allData.filter(row => row.chonIn);
-  if (!printData.length) {
-    alert('Chọn ít nhất 1 dòng ở cột In QR.');
+  if(rows.length > 100){
+    alert(
+      'Mỗi lần chỉ nên xuất tối đa 100 máy để tránh trình duyệt bị treo.\n' +
+      'Hãy nhập các số thẻ theo từng nhóm nhỏ hơn.'
+    );
     return;
   }
 
-  const w = window.open('', '_blank');
-  if (!w) {
-    alert('Trình duyệt đang chặn cửa sổ in.');
-    return;
-  }
+  const button = $('btnPrintMaintenance');
+  const oldButtonText = button.textContent;
 
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>In Tem QR</title><style>
-    @page{size:A4 portrait;margin:4.3mm}
-    body{font-family:Arial,sans-serif;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:auto;gap:2mm;justify-items:center;align-items:center}
-    .tem{width:32mm;height:34mm;border:.1px solid #000;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:.1mm;box-sizing:border-box;text-align:center;page-break-inside:avoid}
-    .top{font-weight:400;font-size:12px;margin:.2mm 0}
-    .qr{margin:0;padding:0;line-height:0}
-    .bottom{font-family:Tahoma,Arial,sans-serif;font-weight:400;font-size:10.5px;letter-spacing:0;margin:.2mm 0 .1mm;white-space:nowrap}
-    canvas,img{display:block;margin:0;width:76px!important;height:76px!important}
-  </style></head><body>`);
+  button.disabled = true;
+  button.textContent = 'Đang tạo Excel...';
+  setStatus(`Đang tạo file Excel cho ${rows.length} máy...`);
 
-  printData.forEach((row, index) => {
-    w.document.write(`
-      <div class="tem">
-        <div class="top">${escapeHtml(row.soThe)}</div>
-        <div class="qr" id="qr_${index}"></div>
-        <div class="bottom">SM: ${escapeHtml(row.soMay)}</div>
-      </div>
-    `);
-  });
+  try{
+    // Chỉ tải kết quả đánh giá chi tiết của đúng các máy cần xuất.
+    const reportResult=await api('getReportData',{
+      data:JSON.stringify({keys:rows.map(r=>r.soThe)})
+    },120000);
+    const detailedByTag={};
+    (reportResult.records||[]).forEach(record=>{
+      detailedByTag[comparableTag(record.soThe)]=record;
+    });
+    rows=rows.map(row=>({
+      ...row,
+      ...(detailedByTag[comparableTag(row.soThe)]||{})
+    }));
 
-  w.document.write('</body></html>');
-  w.document.close();
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Công ty TNHH May Xuất khẩu Việt Hồng';
+    workbook.company = 'Công ty TNHH May Xuất khẩu Việt Hồng';
+    workbook.subject = 'Phiếu bảo trì, bảo dưỡng máy - Mẫu 16 CĐ';
+    workbook.title = 'Phiếu bảo trì 16 CĐ';
+    workbook.created = new Date();
+    workbook.modified = new Date();
 
-  w.onload = () => {
-    printData.forEach((row, index) => {
-      const qrDiv = w.document.getElementById('qr_' + index);
-      if (!qrDiv) return;
-      new QRCode(qrDiv, {
-        text: location.href.split('#')[0] + '#' + encodeURIComponent(row.soThe),
-        width: 90,
-        height: 90
-      });
+    const thinBorder = {
+      top:{style:'thin',color:{argb:'FF000000'}},
+      left:{style:'thin',color:{argb:'FF000000'}},
+      bottom:{style:'thin',color:{argb:'FF000000'}},
+      right:{style:'thin',color:{argb:'FF000000'}}
+    };
+
+    const center = {
+      vertical:'middle',
+      horizontal:'center',
+      wrapText:true
+    };
+
+    const leftWrap = {
+      vertical:'middle',
+      horizontal:'left',
+      wrapText:true
+    };
+
+    const fillBlue = {
+      type:'pattern',
+      pattern:'solid',
+      fgColor:{argb:'FF0B74D1'}
+    };
+
+    const fillLightBlue = {
+      type:'pattern',
+      pattern:'solid',
+      fgColor:{argb:'FFDDEEFF'}
+    };
+
+    const fillInput = {
+      type:'pattern',
+      pattern:'solid',
+      fgColor:{argb:'FFFFF2CC'}
+    };
+
+    const fillWarning = {
+      type:'pattern',
+      pattern:'solid',
+      fgColor:{argb:'FFFFE699'}
+    };
+
+    // Sheet tổng hợp để dễ kiểm tra các máy đã xuất.
+    const summary = workbook.addWorksheet('Danh sách', {
+      views:[{state:'frozen',ySplit:1}]
     });
 
-    setTimeout(() => {
-      w.focus();
-      w.print();
-    }, 650);
-  };
-}
-
-function printMachineHistory() {
-  const input = clean(document.getElementById('soThePrint').value);
-  if (!input) {
-    alert("Nhập số thẻ hoặc gõ 'all' để in toàn bộ.");
-    return;
-  }
-
-  const listSoThe = input.toLowerCase() === 'all'
-    ? allData.map(row => row.soThe)
-    : input.split(',').map(clean).filter(Boolean);
-
-  const selected = listSoThe.map(soThe => allData.find(row => comparable(row.soThe) === comparable(soThe)));
-  const missing = listSoThe.filter((_, index) => !selected[index]);
-  if (missing.length) {
-    alert('Không tìm thấy số thẻ: ' + missing.join(', '));
-    return;
-  }
-
-  const w = window.open('', '_blank');
-  if (!w) {
-    alert('Trình duyệt đang chặn cửa sổ in.');
-    return;
-  }
-
-  const baseURL = location.href.split('#')[0];
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>In Lý Lịch</title><style>
-    body{font-family:Arial;margin:20px;color:#333}.header-logo div{font-size:20px;font-weight:bold;line-height:1.2}
-    table{border-collapse:collapse;width:100%;margin-top:10px}th,td{border:1px solid #ccc;padding:8px;vertical-align:top}th{background:#eee;width:30%}
-    .maintenance-list{margin:0;padding-left:22px;line-height:1.45}.maintenance-list li{margin:0 0 4px}.maintenance-list li:last-child{margin-bottom:0}
-    .page-break{page-break-after:always}.sign-box{margin-top:10px;text-align:right;font-size:16px;line-height:1.5}
-  </style></head><body>`);
-
-  selected.forEach((row, index) => {
-    const qrText = baseURL + '#' + encodeURIComponent(row.soThe);
-    const tempDiv = document.createElement('div');
-    new QRCode(tempDiv, { text: qrText, width: 100, height: 100 });
-    const qrImg = tempDiv.querySelector('img')?.src || tempDiv.querySelector('canvas')?.toDataURL() || '';
-
-    w.document.write(`
-      <div class="header-logo">
-        <div>CÔNG TY TNHH MAY XK</div>
-        <div style="margin-left:55px">VIỆT HỒNG</div>
-      </div>
-      <div style="position:relative;margin-bottom:40px">
-        <div style="position:absolute;left:60px;top:0"><img src="${qrImg}" style="width:100px;height:100px"></div>
-        <div style="text-align:center;font-size:20px;font-weight:bold;padding-top:60px">LÝ LỊCH MÁY ${escapeHtml(formatHistoryCode(row.soThe))}</div>
-      </div>
-    `);
-
-    const tableFields = [
-      ['Số thẻ', row.soThe], ['Số máy', row.soMay], ['Loại máy', row.loaiMay],
-      ['Vị trí', row.viTri], ['Ghi chú / Đơn vị mượn', row.ghiChu],
-      ['Đã kiểm kê', row.daKiemKe ? 'Có' : 'Chưa'], ['In QR', row.chonIn ? 'Có' : 'Không'],
-      ['Ngày mua/mượn', row.ngayMua], ['Nơi mua', row.noiMua],
-      ['Bảo dưỡng Q1', row.bdQ1 ? row.bdNgayQ1 : ''],
-      ['Bảo dưỡng Q2', row.bdQ2 ? row.bdNgayQ2 : ''],
-      ['Bảo dưỡng Q3', row.bdQ3 ? row.bdNgayQ3 : ''],
-      ['Bảo dưỡng Q4', row.bdQ4 ? row.bdNgayQ4 : ''],
-      ['Nội dung bảo dưỡng', row.suaChua, true]
+    summary.columns = [
+      {header:'STT',key:'stt',width:7},
+      {header:'Số thẻ',key:'soThe',width:15},
+      {header:'Số máy',key:'soMay',width:18},
+      {header:'Loại máy',key:'loaiMay',width:48},
+      {header:'Vị trí',key:'viTri',width:20},
+      {header:'Mã mẫu',key:'maMau',width:20},
+      {header:'Tên mẫu bảo trì',key:'tenMau',width:28},
+      {header:'Trạng thái phân loại',key:'trangThai',width:30}
     ];
 
-    w.document.write('<table>');
-    tableFields.forEach(item => {
-      const cellHtml = item[2]
-        ? formatMaintenanceHtml(item[1])
-        : escapeHtml(item[1]);
-
-      w.document.write(`<tr><th>${escapeHtml(item[0])}</th><td>${cellHtml}</td></tr>`);
+    summary.getRow(1).eachCell(cell => {
+      cell.font = {name:'Arial',size:11,bold:true,color:{argb:'FFFFFFFF'}};
+      cell.fill = fillBlue;
+      cell.alignment = center;
+      cell.border = thinBorder;
     });
-    w.document.write('</table>');
-    w.document.write('<div class="sign-box"><div>Vĩnh Long, ngày ..... tháng ..... năm .....</div><div style="margin-right:105px">Người lập</div></div>');
+    summary.getRow(1).height = 28;
 
-    if (index < selected.length - 1) w.document.write('<div class="page-break"></div>');
-  });
+    rows.forEach((r,index) => {
+      const t = state.templateByCode[r.maMauBaoTri];
+      const row = summary.addRow({
+        stt:index + 1,
+        soThe:displayTag(r.soThe),
+        soMay:r.soMay,
+        loaiMay:r.loaiMay,
+        viTri:r.viTri,
+        maMau:r.maMauBaoTri,
+        tenMau:t?.name || r.nhomMayBaoTri || '',
+        trangThai:r.trangThaiPhanLoai || ''
+      });
 
-  w.document.write('</body></html>');
-  w.document.close();
-  setTimeout(() => { w.focus(); w.print(); }, 400);
-}
+      row.eachCell(cell => {
+        cell.font = {name:'Arial',size:10};
+        cell.alignment = leftWrap;
+        cell.border = thinBorder;
+      });
+      row.getCell(1).alignment = center;
+    });
 
-function showApp() {
-  loginOverlay.style.display = 'none';
-  appRoot.style.display = 'block';
-  loadData();
-}
+    summary.autoFilter = {
+      from:{row:1,column:1},
+      to:{row:Math.max(1,rows.length + 1),column:8}
+    };
+    summary.pageSetup = {
+      paperSize:9,
+      orientation:'landscape',
+      fitToPage:true,
+      fitToWidth:1,
+      fitToHeight:0,
+      margins:{left:0.25,right:0.25,top:0.4,bottom:0.4,header:0.2,footer:0.2}
+    };
 
-function login() {
-  if (pwdInput.value === PASSWORD) {
-    localStorage.setItem(LOGIN_KEY, String(Date.now()));
-    loginError.textContent = '';
-    showApp();
-  } else {
-    loginError.textContent = 'Mật khẩu sai.';
-    pwdInput.value = '';
-    pwdInput.focus();
+    const usedSheetNames = new Set(['Danh sách']);
+
+    rows.forEach((r,index) => {
+      const t = state.templateByCode[r.maMauBaoTri];
+      const details = Array.isArray(t.details) ? t.details : [];
+
+      let sheetName = displayTag(r.soThe)
+        .replace(/[\\/:?*\[\]]/g,'-')
+        .slice(0,31) || `Máy ${index + 1}`;
+
+      const baseName = sheetName;
+      let suffix = 2;
+      while(usedSheetNames.has(sheetName)){
+        const suffixText = '-' + suffix++;
+        sheetName = (baseName.slice(0,31 - suffixText.length) + suffixText);
+      }
+      usedSheetNames.add(sheetName);
+
+      const ws = workbook.addWorksheet(sheetName, {
+        views:[{
+          state:'frozen',
+          ySplit:8,
+          showGridLines:false
+        }]
+      });
+
+      ws.properties.defaultRowHeight = 20;
+      /*
+       * Chiều rộng được cân lại cho khổ A4 ngang.
+       * Cột nội dung và 4 cột quý rộng hơn để sau khi co vừa 1 trang,
+       * biểu mẫu không bị nhỏ và không còn khoảng trắng lớn hai bên.
+       */
+      ws.columns = [
+        {key:'A',width:9},
+        {key:'B',width:60},
+        {key:'C',width:22},
+        {key:'D',width:22},
+        {key:'E',width:22},
+        {key:'F',width:22},
+        {key:'G',width:31}
+      ];
+
+      /*
+       * Thiết lập in A4 ngang:
+       * - Vừa đúng 1 trang.
+       * - Căn giữa phần biểu mẫu.
+       * - Bỏ chữ ở hai mép chân trang để không làm lệch/giãn khung in.
+       */
+      ws.pageSetup = {
+        paperSize:9,
+        orientation:'landscape',
+        fitToPage:true,
+        fitToWidth:1,
+        fitToHeight:1,
+        horizontalCentered:true,
+        verticalCentered:false,
+        firstPageNumber:1,
+        useFirstPageNumber:true,
+        margins:{
+          left:0.10,
+          right:0.10,
+          top:0.18,
+          bottom:0.18,
+          header:0.03,
+          footer:0.05
+        }
+      };
+
+      /*
+       * Chỉ để số trang ở giữa.
+       * Đã bỏ:
+       * - “Phòng Cơ điện” bên trái.
+       * - Số thẻ máy bên phải.
+       */
+      ws.headerFooter.oddFooter = '&CTrang &P / &N';
+      ws.headerFooter.evenFooter = '&CTrang &P / &N';
+      ws.headerFooter.firstFooter = '&CTrang &P / &N';
+
+      /*
+       * Tách thành hai hàng độc lập để chữ không bị dính khi in.
+       */
+      ws.mergeCells('A1:E1');
+      ws.getCell('A1').value =
+        'CÔNG TY TNHH MAY XUẤT KHẨU VIỆT HỒNG';
+      ws.getCell('A1').font = {name:'Arial',size:13,bold:true};
+      ws.getCell('A1').alignment = center;
+      ws.getCell('A1').border = thinBorder;
+
+      ws.mergeCells('A2:E2');
+      ws.getCell('A2').value = 'PHÒNG CƠ ĐIỆN';
+      ws.getCell('A2').font = {name:'Arial',size:12,bold:true};
+      ws.getCell('A2').alignment = center;
+      ws.getCell('A2').border = thinBorder;
+
+      ws.mergeCells('F1:G1');
+      ws.getCell('F1').value = 'Mẫu số: 16 CĐ';
+      ws.getCell('F1').font = {name:'Arial',size:11,bold:true};
+      ws.getCell('F1').alignment = center;
+      ws.getCell('F1').border = thinBorder;
+
+      ws.mergeCells('F2:G2');
+      ws.getCell('F2').value = 'Ban hành lần: 1/0';
+      ws.getCell('F2').font = {name:'Arial',size:10};
+      ws.getCell('F2').alignment = center;
+      ws.getCell('F2').border = thinBorder;
+
+      ws.getRow(1).height = 23;
+      ws.getRow(2).height = 22;
+
+      ws.mergeCells('A3:G3');
+      ws.getCell('A3').value = 'NỘI DUNG BẢO TRÌ, BẢO DƯỠNG MÁY';
+      ws.getCell('A3').font = {name:'Arial',size:16,bold:true,color:{argb:'FFFFFFFF'}};
+      ws.getCell('A3').fill = fillBlue;
+      ws.getCell('A3').alignment = center;
+      ws.getCell('A3').border = thinBorder;
+      ws.getRow(3).height = 28;
+
+      const reportEquipmentName =
+        t.reportEquipmentName || t.sourceEquipmentName || t.name || '';
+
+      ws.getCell('A4').value = 'Thiết bị:';
+      ws.mergeCells('B4:D4');
+      ws.getCell('B4').value = reportEquipmentName;
+      ws.getCell('E4').value = 'Mã mẫu:';
+      ws.mergeCells('F4:G4');
+      ws.getCell('F4').value = t.code || r.maMauBaoTri;
+
+      ws.getCell('A5').value = 'Loại máy:';
+      ws.mergeCells('B5:G5');
+      ws.getCell('B5').value = r.loaiMay || '';
+
+      ws.getCell('A6').value = 'Số thẻ:';
+      ws.getCell('B6').value = displayTag(r.soThe);
+      ws.getCell('C6').value = 'Số máy:';
+      ws.getCell('D6').value = r.soMay || '';
+      ws.getCell('E6').value = 'Vị trí:';
+      ws.mergeCells('F6:G6');
+      ws.getCell('F6').value = r.viTri || '';
+
+      ws.getCell('A7').value = 'NV bảo trì:';
+      ws.getCell('B7').value = t.maintenanceStaff || 'Nhân viên cơ điện';
+      ws.getCell('C7').value = 'Kiểm soát:';
+      ws.getCell('D7').value = t.controller || 'Trưởng Phòng Cơ điện';
+      ws.getCell('E7').value = 'Đơn vị mượn:';
+      ws.mergeCells('F7:G7');
+      ws.getCell('F7').value = r.ghiChu || '';
+
+      for(let rowNo = 4; rowNo <= 7; rowNo++){
+        for(let colNo = 1; colNo <= 7; colNo++){
+          const cell = ws.getCell(rowNo,colNo);
+          cell.border = thinBorder;
+          cell.font = {
+            name:'Arial',
+            size:9.5,
+            bold:[1,3,5].includes(colNo)
+          };
+          cell.alignment = leftWrap;
+        }
+      }
+
+      ws.getRow(4).height = 25;
+      ws.getRow(5).height = 24;
+      ws.getRow(6).height = 24;
+      ws.getRow(7).height = 30;
+
+      ['A4','E4','A5','A6','C6','E6','A7','C7','E7'].forEach(address => {
+        ws.getCell(address).fill = fillLightBlue;
+        ws.getCell(address).font = {name:'Arial',size:10,bold:true};
+      });
+
+      const qDate = q => r['bdNgay' + q] || '...../...../..........';
+      const headerRow = 8;
+      const headers = [
+        'STT',
+        'NỘI DUNG BẢO TRÌ',
+        `Quý 1\nNgày: ${qDate('Q1')}`,
+        `Quý 2\nNgày: ${qDate('Q2')}`,
+        `Quý 3\nNgày: ${qDate('Q3')}`,
+        `Quý 4\nNgày: ${qDate('Q4')}`,
+        'GHI CHÚ'
+      ];
+
+      headers.forEach((value,colIndex) => {
+        const cell = ws.getCell(headerRow,colIndex + 1);
+        cell.value = value;
+        cell.font = {name:'Arial',size:10,bold:true,color:{argb:'FFFFFFFF'}};
+        cell.fill = fillBlue;
+        cell.alignment = center;
+        cell.border = thinBorder;
+      });
+      ws.getRow(headerRow).height = 40;
+
+      details.forEach((detail,detailIndex) => {
+        const excelRow = headerRow + 1 + detailIndex;
+        ws.getCell(excelRow,1).value = detail.no || detailIndex + 1;
+        ws.getCell(excelRow,2).value = detail.content || '';
+
+        for(let colNo = 1; colNo <= 7; colNo++){
+          const cell = ws.getCell(excelRow,colNo);
+          cell.border = thinBorder;
+          cell.font = {name:'Arial',size:10};
+          cell.alignment = colNo === 2 || colNo === 7 ? leftWrap : center;
+        }
+
+        ['Q1','Q2','Q3','Q4'].forEach((quarter,qIndex)=>{
+          const cell=ws.getCell(excelRow,3+qIndex);
+          const resultCode=maintenanceResultForDetail(r,quarter,detail,detailIndex);
+          cell.value=excelMaintenanceMark(resultCode);
+          cell.fill=resultCode==='D'
+            ? {type:'pattern',pattern:'solid',fgColor:{argb:'FFE2F0D9'}}
+            : resultCode==='K'
+              ? {type:'pattern',pattern:'solid',fgColor:{argb:'FFF4CCCC'}}
+              : fillInput;
+          cell.alignment={vertical:'middle',horizontal:'left',wrapText:true};
+        });
+
+        ws.getCell(excelRow,7).value=excelMaintenanceNote(r,detail,detailIndex);
+        ws.getCell(excelRow,7).fill=fillInput;
+        ws.getRow(excelRow).height=33;
+      });
+
+      const lastDetailRow = headerRow + Math.max(details.length,1);
+      if(!details.length){
+        for(let colNo = 1; colNo <= 7; colNo++){
+          const cell = ws.getCell(headerRow + 1,colNo);
+          cell.border = thinBorder;
+        }
+        ws.getCell(headerRow + 1,2).value = 'Chưa có nội dung bảo trì trong mẫu.';
+      }
+
+      let currentRow = lastDetailRow + 1;
+
+      // Khu vực ký tên của Phòng Cơ điện
+      ws.mergeCells(currentRow,1,currentRow,7);
+      ws.getCell(currentRow,1).value = 'XÁC NHẬN CỦA PHÒNG CƠ ĐIỆN';
+      ws.getCell(currentRow,1).font = {name:'Arial',size:11,bold:true,color:{argb:'FFFFFFFF'}};
+      ws.getCell(currentRow,1).fill = fillBlue;
+      ws.getCell(currentRow,1).alignment = center;
+      ws.getCell(currentRow,1).border = thinBorder;
+      ws.getRow(currentRow).height = 24;
+      currentRow++;
+
+      const signatureTopRow = currentRow;
+      const signatureBottomRow = currentRow + 2;
+
+      ws.mergeCells(signatureTopRow,1,signatureBottomRow,3);
+      ws.getCell(signatureTopRow,1).value =
+        'NHÂN VIÊN CƠ ĐIỆN THỰC HIỆN\n(Ký và ghi rõ họ tên)';
+
+      ws.mergeCells(signatureTopRow,4,signatureBottomRow,7);
+      ws.getCell(signatureTopRow,4).value =
+        'TRƯỞNG PHÒNG CƠ ĐIỆN / NGƯỜI KIỂM SOÁT\n(Ký và ghi rõ họ tên)';
+
+      [ws.getCell(signatureTopRow,1),ws.getCell(signatureTopRow,4)].forEach(cell=>{
+        cell.font = {name:'Arial',size:10,bold:true};
+        cell.alignment = {vertical:'top',horizontal:'center',wrapText:true};
+      });
+
+      for(let rowNo=signatureTopRow;rowNo<=signatureBottomRow;rowNo++){
+        for(let colNo=1;colNo<=7;colNo++){
+          ws.getCell(rowNo,colNo).border = thinBorder;
+        }
+        ws.getRow(rowNo).height =
+          rowNo===signatureTopRow ? 27 : 23;
+      }
+      currentRow = signatureBottomRow + 1;
+
+      ws.mergeCells(currentRow,1,currentRow + 1,7);
+      ws.getCell(currentRow,1).value =
+        '* Lưu ý:\n' +
+        '- Nhân viên bảo trì kiểm tra và đánh giá tình trạng máy 3 tháng/lần.\n' +
+        '- Kết quả Đạt / Không đạt lấy từ phần đánh giá chi tiết.\n' +
+        '- Nhân viên Cơ điện và Người kiểm soát ký tên sau khi hoàn tất.';
+      ws.getCell(currentRow,1).font = {name:'Arial',size:8.5};
+      ws.getCell(currentRow,1).alignment = leftWrap;
+      ws.getCell(currentRow,1).border = thinBorder;
+      ws.getRow(currentRow).height = 27;
+      ws.getRow(currentRow + 1).height = 27;
+      currentRow += 2;
+
+      ws.mergeCells(currentRow,1,currentRow,5);
+      ws.getCell(currentRow,1).value =
+        'Phiên bản mẫu: ' + (t.version || r.phienBanMau || '16CD-1.0');
+      ws.getCell(currentRow,1).font = {name:'Arial',size:9,italic:true};
+      ws.getCell(currentRow,1).alignment = leftWrap;
+
+      ws.mergeCells(currentRow,6,currentRow,7);
+      ws.getCell(currentRow,6).value =
+        'Trạng thái: ' + (r.trangThaiPhanLoai || 'Cần phân loại');
+      ws.getCell(currentRow,6).font = {name:'Arial',size:9,bold:true};
+      ws.getCell(currentRow,6).alignment = center;
+
+      if(r.trangThaiPhanLoai !== 'Đã xác nhận'){
+        ws.getCell(currentRow,6).fill = fillWarning;
+      }
+
+      /*
+       * Khóa vùng in chính xác trong khung A:G.
+       * Dùng pageSetup.printArea để Excel nhận đúng khi mở Print Preview.
+       */
+      ws.pageSetup.printArea = `A1:G${currentRow}`;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob(
+      [buffer],
+      {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+    );
+
+    const firstTag = displayTag(rows[0].soThe)
+      .replace(/[^A-Za-z0-9_-]/g,'-');
+    const fileName = rows.length === 1
+      ? `Phieu_bao_tri_16CD_${firstTag}.xlsx`
+      : `Phieu_bao_tri_16CD_${rows.length}_may.xlsx`;
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(link.href),1500);
+    setStatus(`Đã xuất Excel ${rows.length} máy: ${fileName}`,'ok');
+
+  }catch(error){
+    console.error(error);
+    alert('Không tạo được file Excel: ' + error.message);
+    setStatus(error.message,'error');
+
+  }finally{
+    button.disabled = false;
+    button.textContent = oldButtonText;
   }
 }
+function focusFromHash(){let tag=location.hash.slice(1);if(!tag)return;try{tag=decodeURIComponent(tag)}catch(_){}const row=state.allData.find(r=>comparableTag(r.soThe)===comparableTag(tag));if(!row)return;$('searchBox').value='';$('filterBox').value='all';state.filtered=state.allData.slice();const index=state.filtered.indexOf(row);state.page=Math.floor(index/state.pageSize)+1;render();setTimeout(highlightHashRow,100)}
+function highlightHashRow(){let tag=location.hash.slice(1);if(!tag)return;try{tag=decodeURIComponent(tag)}catch(_){}document.querySelectorAll('.row-highlight').forEach(x=>x.classList.remove('row-highlight'));const tr=Array.from(document.querySelectorAll('#dataTable tbody tr')).find(x=>comparableTag(x.dataset.tag)===comparableTag(tag));if(tr){tr.classList.add('row-highlight');tr.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})}}
 
-/* ===== EVENTS ===== */
-filterBox.addEventListener('change', renderTable);
-searchBox.addEventListener('input', renderTable);
-document.getElementById('btnRefresh').addEventListener('click', loadData);
-document.getElementById('btnAdd').addEventListener('click', () => openEditModal(null));
-document.getElementById('btnPrint').addEventListener('click', printQrLabels);
-document.getElementById('btnPrintLyLich').addEventListener('click', printMachineHistory);
-document.getElementById('cancelBtn').addEventListener('click', closeModal);
-saveBtn.addEventListener('click', saveModal);
+function changePage(delta){const max=Math.max(1,Math.ceil(state.filtered.length/state.pageSize));state.page=Math.min(max,Math.max(1,state.page+delta));render()}
 
-modal.addEventListener('click', event => {
-  if (event.target === modal) closeModal();
+$('btnLogin').onclick=login;$('passwordInput').onkeydown=e=>{if(e.key==='Enter')login()};$('btnLogout').onclick=()=>logout(true);$('btnRefresh').onclick=loadData;$('btnAdd').onclick=()=>openModal(null);$('btnSyncTemplates').onclick=syncTemplates;$('searchBox').oninput=()=>{state.page=1;render()};$('filterBox').onchange=()=>{state.page=1;render()};$('pageSizeBox').value=String(state.pageSize);$('pageSizeBox').onchange=()=>{state.pageSize=Number($('pageSizeBox').value);state.page=1;render()};
+['btnPrev','btnPrevBottom'].forEach(id=>$(id).onclick=()=>changePage(-1));['btnNext','btnNextBottom'].forEach(id=>$(id).onclick=()=>changePage(1));
+$('btnSelectQrFiltered').onclick=()=>batchFiltered('chonIn',true);$('btnUnselectQrFiltered').onclick=()=>batchFiltered('chonIn',false);$('btnPrintQr').onclick=printQr;$('btnPrintHistory').onclick=printHistory;$('btnPrintMaintenance').onclick=exportMaintenanceExcel;
+$('btnCloseModal').onclick=closeModal;$('btnCancel').onclick=closeModal;$('editModal').onclick=e=>{if(e.target.id==='editModal')closeModal()};$('editForm').onsubmit=saveModal;
+$('dataTable').querySelector('tbody').onclick=e=>{const btn=e.target.closest('[data-edit]');if(btn)openModal(Number(btn.dataset.edit))};$('dataTable').querySelector('tbody').onchange=e=>{const input=e.target.closest('.row-check');if(input)patchCheckbox(input)};
+$('maintenanceQuarterTabs').onclick=e=>{
+  const button=e.target.closest('[data-maint-quarter]');
+  if(!button||button.disabled)return;
+  state.activeMaintenanceQuarter=button.dataset.maintQuarter;
+  renderMaintenanceEvaluation();
+};
+
+$('maintenanceChecklist').onchange=e=>{
+  const input=e.target.closest('[data-maint-result]');
+  if(!input)return;
+  const quarter=input.dataset.quarter;
+  const no=input.dataset.no;
+  const data=ensureQuarterEvaluation(quarter);
+  if(!data)return;
+  data.r[no]=normalizeMaintenanceResultCode(input.value);
+  renderMaintenanceEvaluation();
+};
+
+$('maintenanceChecklist').oninput=e=>{
+  const input=e.target.closest('[data-maint-note]');
+  if(!input)return;
+  const data=ensureQuarterEvaluation(input.dataset.quarter);
+  if(!data)return;
+  const note=clean(input.value);
+  if(note)data.n[input.dataset.no]=note;
+  else delete data.n[input.dataset.no];
+};
+
+$('m_maMauBaoTri').onchange=()=>{
+  const newCode=clean($('m_maMauBaoTri').value);
+  const hasEvaluation=Object.values(state.editingMaintenanceResults).some(q=>
+    Object.keys(q.r||{}).length||Object.keys(q.n||{}).length
+  );
+  if(hasEvaluation&&state.editingTemplateCode&&newCode!==state.editingTemplateCode){
+    if(!confirm('Đổi Mã mẫu sẽ xóa các đánh giá chi tiết đã nhập trong cửa sổ này. Tiếp tục?')){
+      $('m_maMauBaoTri').value=state.editingTemplateCode;
+      return;
+    }
+    state.editingMaintenanceResults={};
+  }
+  state.editingTemplateCode=newCode;
+  renderMaintenanceEvaluation();
+};
+
+['Q1','Q2','Q3','Q4'].forEach(q=>{
+  $('m_bd'+q).onchange=()=>{
+    if(!$('m_bd'+q).checked){
+      const old=state.editingMaintenanceResults[q];
+      const hasData=old&&(Object.keys(old.r||{}).length||Object.keys(old.n||{}).length);
+      if(hasData&&!confirm(`Bỏ ${q} sẽ xóa kết quả đánh giá chi tiết của ${q}. Tiếp tục?`)){
+        $('m_bd'+q).checked=true;
+        return;
+      }
+      delete state.editingMaintenanceResults[q];
+      $('m_bdNgay'+q).value='';
+    }else{
+      if(!clean($('m_bdNgay'+q).value))$('m_bdNgay'+q).value=todayText();
+      state.activeMaintenanceQuarter=q;
+      ensureQuarterEvaluation(q);
+    }
+    renderMaintenanceEvaluation();
+  };
+  $('m_bdNgay'+q).oninput=()=>{
+    const data=state.editingMaintenanceResults[q];
+    if(data)data.d=clean($('m_bdNgay'+q).value);
+    if(state.activeMaintenanceQuarter===q)renderMaintenanceEvaluation();
+  };
 });
+window.addEventListener('hashchange',()=>state.allData.length?focusFromHash():null);
 
-tbody.addEventListener('click', event => {
-  const button = event.target.closest('button[data-act="edit"]');
-  if (!button) return;
-  openEditModal(Number(button.dataset.i));
-});
-
-tbody.addEventListener('change', event => {
-  const input = event.target.closest('.row-check');
-  if (input) patchCheckbox(input);
-});
-
-document.getElementById('checkAllQR').addEventListener('change', event => batchSetVisible('chonIn', event.target.checked, event.target));
-document.getElementById('checkAllQ1').addEventListener('change', event => batchSetVisible('bdQ1', event.target.checked, event.target));
-document.getElementById('checkAllQ2').addEventListener('change', event => batchSetVisible('bdQ2', event.target.checked, event.target));
-document.getElementById('checkAllQ3').addEventListener('change', event => batchSetVisible('bdQ3', event.target.checked, event.target));
-document.getElementById('checkAllQ4').addEventListener('change', event => batchSetVisible('bdQ4', event.target.checked, event.target));
-
-[['bdQ1','bdNgayQ1'],['bdQ2','bdNgayQ2'],['bdQ3','bdNgayQ3'],['bdQ4','bdNgayQ4']].forEach(([checkName, dateName]) => {
-  fields[checkName].addEventListener('change', () => {
-    if (!fields[checkName].checked) fields[dateName].value = '';
-    else if (!clean(fields[dateName].value)) fields[dateName].value = todayText();
-  });
-});
-
-window.addEventListener('hashchange', () => setTimeout(() => highlightFromHash(), 100));
-window.addEventListener('online', () => setStatus('Đã có kết nối mạng'));
-window.addEventListener('offline', () => setStatus('Thiết bị đang offline', false));
-
-pwdBtn.addEventListener('click', login);
-pwdInput.addEventListener('keydown', event => {
-  if (event.key === 'Enter') login();
-});
-
-const loginTime = Number(localStorage.getItem(LOGIN_KEY) || 0);
-if (loginTime && Date.now() - loginTime < LOGIN_DURATION_MS) showApp();
-else setTimeout(() => pwdInput.focus(), 50);
+if(state.token){$('loginOverlay').style.display='none';$('appRoot').classList.remove('hidden');$('btnLogout').classList.remove('hidden');$('rolePill').textContent='Đã đăng nhập';loadData()}else{logout(false)}
 </script>
 </body>
 </html>

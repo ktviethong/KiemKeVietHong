@@ -50,7 +50,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .table-card{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.table-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line)}.table-head h2{font-size:18px;margin:0}.table-head p{font-size:13px;color:var(--muted);margin:4px 0 0}.table-actions{display:flex;gap:7px;flex-wrap:wrap}
 .table-wrap{display:block;position:relative;width:100%;max-width:100%;height:calc(100vh - 285px);min-height:360px;overflow:auto;background:#fff;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .table-wrap::-webkit-scrollbar{width:13px;height:13px}.table-wrap::-webkit-scrollbar-track{background:#e9eef5}.table-wrap::-webkit-scrollbar-thumb{background:#7b8794;border:3px solid #e9eef5;border-radius:10px}
-table{border-collapse:separate;border-spacing:0;width:max-content;min-width:2050px;background:#fff}th,td{border-right:1px solid #e3e8ef;border-bottom:1px solid #e3e8ef;padding:7px 8px;text-align:center;white-space:nowrap;font-size:13px;vertical-align:middle}th{position:sticky;top:0;z-index:6;background:var(--blue);color:#fff;font-weight:700}tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef6ff}.cell-wrap{white-space:normal;line-height:1.25;max-width:220px;min-width:120px;text-align:left}.col-type{max-width:300px;min-width:180px}.col-note{max-width:240px;min-width:150px}.col-maint{max-width:300px;min-width:170px}.row-highlight td{background:#fff0a8!important;font-weight:700}.row-pending{opacity:.55}.tag-cell{font-weight:800;color:#0b5eab}.action-btn{border:0;border-radius:7px;padding:6px 8px;background:#dbeafe;color:#075da8;font-weight:700}.small-check{width:17px;height:17px}.badge{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:800}.badge-confirmed{background:#d9f8e9;color:#087f5b}.badge-suggested{background:#fff1c7;color:#8a5b00}.badge-missing{background:#fee2e2;color:#b42318}.template-name{display:block;font-size:11px;color:#64748b;margin-top:2px;max-width:170px;white-space:normal}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:2050px;background:#fff}th,td{border-right:1px solid #e3e8ef;border-bottom:1px solid #e3e8ef;padding:7px 8px;text-align:center;white-space:nowrap;font-size:13px;vertical-align:middle}th{position:sticky;top:0;z-index:6;background:var(--blue);color:#fff;font-weight:700}tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef6ff}.cell-wrap{white-space:normal;line-height:1.25;max-width:220px;min-width:120px;text-align:left}.col-type{max-width:300px;min-width:180px}.col-note{max-width:240px;min-width:150px}.col-maint{max-width:300px;min-width:170px}.col-emergency{max-width:360px;min-width:240px;white-space:normal;text-align:left}.col-emergency ol{margin:0;padding-left:20px}.col-emergency li{margin:0 0 3px;line-height:1.3}.row-highlight td{background:#fff0a8!important;font-weight:700}.row-pending{opacity:.55}.tag-cell{font-weight:800;color:#0b5eab}.action-btn{border:0;border-radius:7px;padding:6px 8px;background:#dbeafe;color:#075da8;font-weight:700}.small-check{width:17px;height:17px}.badge{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:800}.badge-confirmed{background:#d9f8e9;color:#087f5b}.badge-suggested{background:#fff1c7;color:#8a5b00}.badge-missing{background:#fee2e2;color:#b42318}.template-name{display:block;font-size:11px;color:#64748b;margin-top:2px;max-width:170px;white-space:normal}
 .pager{display:flex;justify-content:center;align-items:center;gap:9px;padding:10px;border-top:1px solid var(--line);background:#fff}.pager span{font-size:13px;color:var(--muted);min-width:130px;text-align:center}
 
 .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:120;align-items:center;justify-content:center;padding:12px}.modal.open{display:flex}.modal-card{width:min(850px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;padding:16px;box-shadow:0 25px 80px rgba(0,0,0,.28)}.modal-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:11px}.modal-head h2{font-size:19px;margin:0}.icon-btn{border:0;border-radius:9px;width:38px;height:38px;background:#eef2f7;font-size:20px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:5px}.field.wide{grid-column:1/-1}.checkbox-row{display:flex;gap:20px;flex-wrap:wrap;margin:12px 0;padding:10px;border:1px solid var(--line);border-radius:10px}.quarter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.quarter{border:1px solid var(--line);padding:9px;border-radius:9px}.quarter label{font-weight:700}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.readonly-box{padding:9px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;font-size:13px;color:#475569}
@@ -130,7 +130,7 @@ body.modal-open{overflow:hidden}
       <div class="table-wrap">
         <table id="dataTable">
           <thead><tr>
-            <th>STT</th><th>Số thẻ</th><th>Số máy</th><th>Loại máy</th><th>Vị trí</th><th>Ghi chú / ĐV mượn</th><th>Mẫu bảo trì</th><th>Phân loại</th><th>Hành động</th><th>Đã KK</th><th>In QR</th><th>Ngày mua</th><th>Nơi mua</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th>
+            <th>STT</th><th>Số thẻ</th><th>Số máy</th><th>Loại máy</th><th>Vị trí</th><th>Ghi chú / ĐV mượn</th><th>Mẫu bảo trì</th><th>Phân loại</th><th>Hành động</th><th>Đã KK</th><th>In QR</th><th>Ngày mua</th><th>Nơi mua</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Sửa chữa đột xuất</th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -152,6 +152,11 @@ body.modal-open{overflow:hidden}
         <div class="field"><label>Ngày mua/mượn</label><input id="m_ngayMua" placeholder="dd/MM/yyyy"></div>
         <div class="field"><label>Nơi mua</label><input id="m_noiMua"></div>
         <div class="field wide"><label>Ghi chú / Đơn vị mượn</label><textarea id="m_ghiChu" rows="2"></textarea></div>
+        <div class="field wide">
+          <label>Sửa chữa đột xuất</label>
+          <textarea id="m_suaChuaDotXuat" rows="5" placeholder="Mỗi lần sửa chữa nhập một dòng. Ví dụ:&#10;Thay motor ngày 10/08/2026&#10;Thay dây điện nguồn ngày 15/08/2026"></textarea>
+          <div class="small-help">Mỗi nội dung nhập một dòng, hệ thống sẽ tự hiển thị thành 1, 2, 3... trên bảng và trong lý lịch máy.</div>
+        </div>
         <div class="field"><label>Mã mẫu bảo trì</label><select id="m_maMauBaoTri"></select></div>
         <div class="field"><label>Trạng thái phân loại</label><select id="m_trangThaiPhanLoai"><option>Gợi ý tự động - cần xác nhận</option><option>Đã xác nhận</option><option>Cần phân loại</option><option>Không áp dụng</option></select></div>
         <div class="field wide"><label>Ghi chú phân loại</label><textarea id="m_ghiChuPhanLoai" rows="2"></textarea></div>
@@ -189,7 +194,7 @@ body.modal-open{overflow:hidden}
 
 /* Giữ URL này nếu cập nhật đúng Deployment Apps Script cũ. Nếu tạo Deployment mới, thay URL bên dưới. */
 /* Mật khẩu không lưu trong HTML; việc kiểm tra được thực hiện trong Code.gs. */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwJt3CKXiH-99xT5Tw9jmtPM-kpKbugUPt1CB325syoVXDLkJFtVTaJp3OKRWaqOrF2/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw6UJdnhlBClknxCDCOoqnSE5txxxqPBWkv4og5A1ez_emoqgBWPU0tCIgLPnZxU_OW/exec';
 const TOKEN_KEY = 'vh_machine_auth_token_v4';
 const BATCH_SIZE = 50;
 
@@ -273,7 +278,7 @@ function rowMatches(row,filter,search){
   if(filter==='daXacNhanMau'&&row.trangThaiPhanLoai!=='Đã xác nhận')return false;
   if(filter==='canXacNhanMau'&&!/Gợi ý|cần xác nhận/i.test(row.trangThaiPhanLoai||''))return false;
   if(filter==='chuaCoMau'&&row.maMauBaoTri)return false;
-  if(search){const hay=[row.soThe,row.soMay,row.loaiMay,row.viTri,row.ghiChu,row.noiMua,row.maMauBaoTri,row.nhomMayBaoTri,row.trangThaiPhanLoai].join(' ').toLowerCase();if(!hay.includes(search))return false}
+  if(search){const hay=[row.soThe,row.soMay,row.loaiMay,row.viTri,row.ghiChu,row.noiMua,row.maMauBaoTri,row.nhomMayBaoTri,row.trangThaiPhanLoai,row.suaChuaDotXuat].join(' ').toLowerCase();if(!hay.includes(search))return false}
   return true;
 }
 
@@ -300,7 +305,7 @@ function rowHtml(row,filteredIndex){
     <td><button class="action-btn" data-edit="${globalIndex}">Sửa</button></td>
     <td><input class="small-check row-check" data-field="daKiemKe" type="checkbox" ${row.daKiemKe?'checked':''}></td>
     <td><input class="small-check row-check" data-field="chonIn" type="checkbox" ${row.chonIn?'checked':''}></td>
-    <td>${esc(row.ngayMua)}</td><td><div class="cell-wrap">${esc(row.noiMua)}</div></td><td>${q(row.bdQ1,row.bdNgayQ1)}</td><td>${q(row.bdQ2,row.bdNgayQ2)}</td><td>${q(row.bdQ3,row.bdNgayQ3)}</td><td>${q(row.bdQ4,row.bdNgayQ4)}</td>
+    <td>${esc(row.ngayMua)}</td><td><div class="cell-wrap">${esc(row.noiMua)}</div></td><td>${q(row.bdQ1,row.bdNgayQ1)}</td><td>${q(row.bdQ2,row.bdNgayQ2)}</td><td>${q(row.bdQ3,row.bdNgayQ3)}</td><td>${q(row.bdQ4,row.bdNgayQ4)}</td><td><div class="cell-wrap col-emergency">${formatLines(row.suaChuaDotXuat)}</div></td>
   </tr>`;
 }
 
@@ -460,7 +465,7 @@ async function openModal(index=null){
   state.activeMaintenanceQuarter=['Q1','Q2','Q3','Q4'].find(q=>row['bd'+q])||'Q1';
 
   $('modalTitle').textContent=index===null?'Thêm máy':'Chỉnh sửa '+displayTag(row.soThe);
-  ['soThe','soMay','loaiMay','viTri','ngayMua','noiMua','ghiChu','ghiChuPhanLoai','bdNgayQ1','bdNgayQ2','bdNgayQ3','bdNgayQ4'].forEach(name=>{$('m_'+name).value=row[name]||''});
+  ['soThe','soMay','loaiMay','viTri','ngayMua','noiMua','ghiChu','suaChuaDotXuat','ghiChuPhanLoai','bdNgayQ1','bdNgayQ2','bdNgayQ3','bdNgayQ4'].forEach(name=>{$('m_'+name).value=row[name]||''});
   $('m_daKiemKe').checked=!!row.daKiemKe;
   $('m_chonIn').checked=!!row.chonIn;
   ['Q1','Q2','Q3','Q4'].forEach(q=>$('m_bd'+q).checked=!!row['bd'+q]);
@@ -524,7 +529,7 @@ function modalData(){
   return {
     sheetRow:state.editingIndex===null?'':state.allData[state.editingIndex].sheetRow,
     soThe:clean($('m_soThe').value),soMay:clean($('m_soMay').value),loaiMay:clean($('m_loaiMay').value),viTri:clean($('m_viTri').value),
-    ngayMua:clean($('m_ngayMua').value),noiMua:clean($('m_noiMua').value),ghiChu:clean($('m_ghiChu').value),
+    ngayMua:clean($('m_ngayMua').value),noiMua:clean($('m_noiMua').value),ghiChu:clean($('m_ghiChu').value),suaChuaDotXuat:clean($('m_suaChuaDotXuat').value),
     daKiemKe:$('m_daKiemKe').checked,chonIn:$('m_chonIn').checked,
     bdQ1:$('m_bdQ1').checked,bdNgayQ1:clean($('m_bdNgayQ1').value),
     bdQ2:$('m_bdQ2').checked,bdNgayQ2:clean($('m_bdNgayQ2').value),
@@ -617,7 +622,7 @@ function selectedRowsFromInput(){const input=clean($('reportTagInput').value);if
 
 function printQr(){const rows=state.allData.filter(r=>r.chonIn);if(!rows.length){alert('Chưa có máy nào được chọn In QR');return}const w=window.open('','_blank');if(!w){alert('Trình duyệt đang chặn cửa sổ in');return}w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>In QR</title><style>@page{size:A4 portrait;margin:4mm}body{font-family:Arial;margin:0;display:grid;grid-template-columns:repeat(5,1fr);gap:2mm}.tem{width:32mm;height:34mm;border:.1px solid #000;display:flex;flex-direction:column;align-items:center;justify-content:center;page-break-inside:avoid}.top{font-size:12px}.bottom{font-size:10px;white-space:nowrap}canvas,img{width:76px!important;height:76px!important}</style></head><body>`);rows.forEach((r,i)=>w.document.write(`<div class="tem"><div class="top">${esc(displayTag(r.soThe))}</div><div id="qr_${i}"></div><div class="bottom">SM: ${esc(r.soMay)}</div></div>`));w.document.write('</body></html>');w.document.close();w.onload=()=>{rows.forEach((r,i)=>new QRCode(w.document.getElementById('qr_'+i),{text:currentBaseUrl()+'#'+encodeURIComponent(r.soThe),width:90,height:90}));setTimeout(()=>{w.focus();w.print()},650)}}
 
-function printHistory(){const rows=selectedRowsFromInput();if(!rows?.length)return;const w=window.open('','_blank');if(!w){alert('Trình duyệt đang chặn cửa sổ in');return}w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lý lịch máy</title><style>@page{size:A4 portrait;margin:16mm}body{font-family:Arial;color:#222}.page{page-break-after:always}.page:last-child{page-break-after:auto}.company{font-size:18px;font-weight:700}.title{text-align:center;font-size:22px;font-weight:800;margin:25px 0 15px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:8px;text-align:left;vertical-align:top}th{width:30%;background:#eee}.sign{text-align:right;margin-top:18px;line-height:1.7}</style></head><body>`);rows.forEach(r=>{const template=state.templateByCode[r.maMauBaoTri];const fields=[['Số thẻ',displayTag(r.soThe)],['Số máy',r.soMay],['Loại máy',r.loaiMay],['Vị trí',r.viTri],['Đơn vị mượn',r.ghiChu],['Ngày mua',r.ngayMua],['Nơi mua',r.noiMua],['Mã mẫu bảo trì',r.maMauBaoTri],['Nhóm máy bảo trì',r.nhomMayBaoTri],['Trạng thái phân loại',r.trangThaiPhanLoai],['Tên thiết bị trên phiếu',template?.reportEquipmentName||''],['Bảo dưỡng Q1',r.bdNgayQ1],['Bảo dưỡng Q2',r.bdNgayQ2],['Bảo dưỡng Q3',r.bdNgayQ3],['Bảo dưỡng Q4',r.bdNgayQ4]];w.document.write(`<section class="page"><div class="company">CÔNG TY TNHH MAY XUẤT KHẨU VIỆT HỒNG</div><div class="title">LÝ LỊCH MÁY ${esc(displayTag(r.soThe))}</div><table>${fields.map(([k,v])=>`<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table><div class="sign">Vĩnh Long, ngày ..... tháng ..... năm .....<br><b style="margin-right:80px">Người lập</b></div></section>`)});w.document.write('</body></html>');w.document.close();setTimeout(()=>{w.focus();w.print()},400)}
+function printHistory(){const rows=selectedRowsFromInput();if(!rows?.length)return;const w=window.open('','_blank');if(!w){alert('Trình duyệt đang chặn cửa sổ in');return}w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lý lịch máy</title><style>@page{size:A4 portrait;margin:16mm}body{font-family:Arial;color:#222}.page{page-break-after:always}.page:last-child{page-break-after:auto}.company{font-size:18px;font-weight:700}.title{text-align:center;font-size:22px;font-weight:800;margin:25px 0 15px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:8px;text-align:left;vertical-align:top}th{width:30%;background:#eee}.sign{text-align:right;margin-top:18px;line-height:1.7}</style></head><body>`);rows.forEach(r=>{const template=state.templateByCode[r.maMauBaoTri];const fields=[['Số thẻ',displayTag(r.soThe)],['Số máy',r.soMay],['Loại máy',r.loaiMay],['Vị trí',r.viTri],['Đơn vị mượn',r.ghiChu],['Ngày mua',r.ngayMua],['Nơi mua',r.noiMua],['Mã mẫu bảo trì',r.maMauBaoTri],['Nhóm máy bảo trì',r.nhomMayBaoTri],['Trạng thái phân loại',r.trangThaiPhanLoai],['Tên thiết bị trên phiếu',template?.reportEquipmentName||''],['Bảo dưỡng Q1',r.bdNgayQ1],['Bảo dưỡng Q2',r.bdNgayQ2],['Bảo dưỡng Q3',r.bdNgayQ3],['Bảo dưỡng Q4',r.bdNgayQ4],['Sửa chữa đột xuất',r.suaChuaDotXuat]];w.document.write(`<section class="page"><div class="company">CÔNG TY TNHH MAY XUẤT KHẨU VIỆT HỒNG</div><div class="title">LÝ LỊCH MÁY ${esc(displayTag(r.soThe))}</div><table>${fields.map(([k,v])=>`<tr><th>${esc(k)}</th><td>${k==='Sửa chữa đột xuất'?(formatLines(v)||''):esc(v)}</td></tr>`).join('')}</table><div class="sign">Vĩnh Long, ngày ..... tháng ..... năm .....<br><b style="margin-right:80px">Người lập</b></div></section>`)});w.document.write('</body></html>');w.document.close();setTimeout(()=>{w.focus();w.print()},400)}
 
 function maintenanceQuarterData(row,quarter){
   const all=normalizeMaintenanceResults(row.ketQuaBaoDuongChiTiet);

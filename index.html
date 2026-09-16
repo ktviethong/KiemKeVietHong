@@ -201,10 +201,11 @@ body.modal-open{overflow:hidden}
 
 <script>
 'use strict';
+// Việt Hồng V3.9.1: CheckAll Q1-Q4 từ Google Sheet; backend chỉ tính các dòng có Số thẻ là máy hợp lệ.
 
 /* Giữ URL này nếu cập nhật đúng Deployment Apps Script cũ. Nếu tạo Deployment mới, thay URL bên dưới. */
 /* Mật khẩu không lưu trong HTML; việc kiểm tra được thực hiện trong Code.gs. */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbws6SiJ4W98u-OW0iQPnTBSf6AX-BQ7m6330vbq8uMVKzcXlgj-71m_cKIO9_UHY756/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxv2so98GOYbMh33F-OT_FavdqzRNcUHKpzJn5ldJf_RcPFtojz4MlKaYLZXndKhNd1/exec';
 const TOKEN_KEY = 'vh_machine_auth_token_v4';
 const BATCH_SIZE = 50;
 const DEFAULT_SIGNATURE_NAME = '[THAY TÊN TẠI ĐÂY]';
@@ -392,7 +393,7 @@ function currentModalTemplate(){
 }
 
 function checkedModalQuarters(){
-  return ['Q1','Q2','Q3','Q4'].filter(q=>$('m_bd'+q).checked);
+  return ['Q1','Q2','Q3','Q4'].filter(q=>$('m_bd'+q).checked||modalCheckAllEnabled(q));
 }
 
 function ensureQuarterEvaluation(quarter){
@@ -411,6 +412,22 @@ function ensureQuarterEvaluation(quarter){
 
 function maintenanceResultLabel(code){
   return code==='D'?'Đạt':code==='K'?'Không đạt':'Chưa đánh giá';
+}
+
+function currentEditingRecord(){
+  return state.editingIndex===null?null:(state.allData[state.editingIndex]||null);
+}
+
+function modalCheckAllEnabled(quarter){
+  const row=currentEditingRecord();
+  return !!(row&&bool(row['checkAll'+quarter]));
+}
+
+// Kết quả đã nhập riêng luôn ưu tiên. Nếu chưa có kết quả riêng và CheckAll = TRUE thì xem là Đạt.
+function effectiveModalMaintenanceResult(quarterData,quarter,key){
+  const stored=normalizeMaintenanceResultCode(quarterData?.r?.[key]);
+  if(stored)return stored;
+  return modalCheckAllEnabled(quarter)?'D':'';
 }
 
 function renderMaintenanceEvaluation(){
@@ -442,8 +459,8 @@ function renderMaintenanceEvaluation(){
   const quarter=state.activeMaintenanceQuarter;
   const quarterData=ensureQuarterEvaluation(quarter);
   const details=Array.isArray(template.details)?template.details:[];
-  const passed=details.filter((d,i)=>normalizeMaintenanceResultCode(quarterData.r[String(d.no||i+1)])==='D').length;
-  const failed=details.filter((d,i)=>normalizeMaintenanceResultCode(quarterData.r[String(d.no||i+1)])==='K').length;
+  const passed=details.filter((d,i)=>effectiveModalMaintenanceResult(quarterData,quarter,String(d.no||i+1))==='D').length;
+  const failed=details.filter((d,i)=>effectiveModalMaintenanceResult(quarterData,quarter,String(d.no||i+1))==='K').length;
   const answered=passed+failed;
   const pending=Math.max(0,details.length-answered);
   hint.textContent=`${template.code} — ${template.name} · ${quarter} · Đã đánh giá ${answered}/${details.length} nội dung.`;
@@ -462,7 +479,7 @@ function renderMaintenanceEvaluation(){
     </div>`+
     details.map((detail,index)=>{
       const no=String(detail.no||index+1);
-      const result=quarterData.r[no]||'';
+      const result=effectiveModalMaintenanceResult(quarterData,quarter,no);
       const note=quarterData.n[no]||'';
       const radioName=`maint_${quarter}_${no.replace(/[^A-Za-z0-9_-]/g,'_')}`;
       return `<div class="maintenance-item">
@@ -483,7 +500,7 @@ async function openModal(index=null){
   state.editingTemplateCode=row.maMauBaoTri||'';
   state.editingMaintenanceResults=normalizeMaintenanceResults(row.ketQuaBaoDuongChiTiet);
   state.maintenanceDetailsLoaded=index===null;
-  state.activeMaintenanceQuarter=['Q1','Q2','Q3','Q4'].find(q=>row['bd'+q])||'Q1';
+  state.activeMaintenanceQuarter=['Q1','Q2','Q3','Q4'].find(q=>row['bd'+q]||bool(row['checkAll'+q]))||'Q1';
 
   $('modalTitle').textContent=index===null?'Thêm máy':'Chỉnh sửa '+displayTag(row.soThe);
   ['soThe','soMay','loaiMay','viTri','ngayMua','noiMua','tinhTrangThietBi','congSuat','trongLuong','kichThuoc','ghiChu','suaChuaDotXuat','ghiChuPhanLoai','bdNgayQ1','bdNgayQ2','bdNgayQ3','bdNgayQ4'].forEach(name=>{$('m_'+name).value=row[name]||''});
@@ -532,13 +549,32 @@ function maintenanceResultsForSave(){
   const template=currentModalTemplate();
   const output=normalizeMaintenanceResults(state.editingMaintenanceResults);
   ['Q1','Q2','Q3','Q4'].forEach(q=>{
-    if(!$('m_bd'+q).checked){
+    const quarterChecked=$('m_bd'+q).checked;
+    const checkAll=modalCheckAllEnabled(q);
+
+    // Nếu quý không được chọn và cũng không có CheckAll thì xử lý giống V3.6: xóa dữ liệu quý đó.
+    if(!quarterChecked&&!checkAll){
       delete output[q];
       return;
     }
     if(!template)return;
+
+    // CheckAll chỉ là giá trị mặc định hiển thị, không cần ghi hàng loạt Đạt vào JSON.
+    // Tuy nhiên nếu người dùng nhập ngoại lệ Không đạt/ghi chú thì vẫn phải lưu ngoại lệ đó,
+    // kể cả khi cột ngày Bảo dưỡng của quý đang để trống.
+    const existing=output[q];
+    const hasExplicit=existing&&(
+      Object.keys(existing.r||{}).length||
+      Object.keys(existing.n||{}).length||
+      clean(existing.d)
+    );
+    if(!quarterChecked&&checkAll&&!hasExplicit){
+      delete output[q];
+      return;
+    }
+
     if(!output[q])output[q]={d:'',m:template.code,r:{},n:{}};
-    output[q].d=clean($('m_bdNgay'+q).value);
+    output[q].d=quarterChecked?clean($('m_bdNgay'+q).value):clean(output[q].d);
     output[q].m=template.code;
     output[q].r=output[q].r||{};
     output[q].n=output[q].n||{};
@@ -764,7 +800,9 @@ function maintenanceQuarterData(row,quarter){
 function maintenanceResultForDetail(row,quarter,detail,index){
   const data=maintenanceQuarterData(row,quarter);
   const key=String(detail.no||index+1);
-  return normalizeMaintenanceResultCode(data.r?.[key]);
+  const stored=normalizeMaintenanceResultCode(data.r?.[key]);
+  if(stored)return stored;
+  return bool(row?.['checkAll'+quarter])?'D':'';
 }
 
 function excelMaintenanceMark(code){
@@ -778,7 +816,7 @@ function excelMaintenanceNote(row,detail,index){
   ['Q1','Q2','Q3','Q4'].forEach(q=>{
     const data=maintenanceQuarterData(row,q);
     const key=String(detail.no||index+1);
-    const result=normalizeMaintenanceResultCode(data.r?.[key]);
+    const result=maintenanceResultForDetail(row,q,detail,index);
     const note=clean(data.n?.[key]);
     if(result==='K'||note){
       const label=maintenanceResultLabel(result);
@@ -1405,12 +1443,20 @@ $('m_maMauBaoTri').onchange=()=>{
     if(!$('m_bd'+q).checked){
       const old=state.editingMaintenanceResults[q];
       const hasData=old&&(Object.keys(old.r||{}).length||Object.keys(old.n||{}).length);
-      if(hasData&&!confirm(`Bỏ ${q} sẽ xóa kết quả đánh giá chi tiết của ${q}. Tiếp tục?`)){
-        $('m_bd'+q).checked=true;
-        return;
+
+      // Nếu CheckAll của quý vẫn TRUE ở Sheet thì giữ các ngoại lệ đã nhập riêng.
+      // Chỉ bỏ ngày/quý bảo dưỡng; CheckAll vẫn tiếp tục làm giá trị Đạt mặc định.
+      if(modalCheckAllEnabled(q)){
+        $('m_bdNgay'+q).value='';
+        if(old)old.d='';
+      }else{
+        if(hasData&&!confirm(`Bỏ ${q} sẽ xóa kết quả đánh giá chi tiết của ${q}. Tiếp tục?`)){
+          $('m_bd'+q).checked=true;
+          return;
+        }
+        delete state.editingMaintenanceResults[q];
+        $('m_bdNgay'+q).value='';
       }
-      delete state.editingMaintenanceResults[q];
-      $('m_bdNgay'+q).value='';
     }else{
       if(!clean($('m_bdNgay'+q).value))$('m_bdNgay'+q).value=todayText();
       state.activeMaintenanceQuarter=q;

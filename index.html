@@ -70,13 +70,19 @@ table{border-collapse:separate;border-spacing:0;width:max-content;min-width:2550
 .maintenance-result-option{display:inline-flex;align-items:center;gap:5px;border:1px solid #ccd6e2;border-radius:8px;padding:6px 8px;background:#fff;font-size:12px;font-weight:700;cursor:pointer}
 .maintenance-result-option input{width:auto;margin:0}.maintenance-result-option.pass:has(input:checked){background:#dcfce7;border-color:#22c55e;color:#166534}.maintenance-result-option.fail:has(input:checked){background:#fee2e2;border-color:#ef4444;color:#991b1b}
 .maintenance-result-note{width:100%!important;padding:7px 8px!important;font-size:12px}.maintenance-eval-empty{padding:18px;text-align:center;border:1px dashed #b9c6d5;border-radius:10px;background:#fff;color:#64748b;font-size:13px;line-height:1.5}
-.maintenance-eval-summary{font-size:12px;color:#475569;margin-bottom:8px}.maintenance-eval-summary b{color:#0f2f55}
+.maintenance-eval-summary{font-size:12px;color:#475569}.maintenance-eval-summary b{color:#0f2f55}
+.maintenance-eval-summary-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px;padding:8px 9px;border:1px solid #dbe3ec;border-radius:10px;background:#fff}
+.maintenance-counts{display:block;margin-top:4px;color:#64748b;font-size:11px;font-weight:700}
+.maintenance-quick-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.maintenance-quick-btn{border:1px solid #b8c7d9;border-radius:8px;padding:7px 10px;background:#fff;color:#334155;font-size:12px;font-weight:800;white-space:nowrap}
+.maintenance-quick-btn.pass-all{background:#e9f9ef;border-color:#86d6a3;color:#166534}
+.maintenance-quick-btn.clear-all{background:#f8fafc;color:#64748b}
 body.modal-open{overflow:hidden}
 
 .login-overlay{position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,rgba(15,47,85,.96),rgba(11,116,209,.9));display:flex;align-items:center;justify-content:center;padding:16px}.login-card{width:min(390px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.3)}.login-logo{width:68px;height:68px;border-radius:20px;background:#e9f3ff;color:var(--blue);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;font-weight:900}.login-card h2{margin:0 0 7px}.login-card p{font-size:13px;color:var(--muted);line-height:1.5}.login-card input{width:100%;padding:11px;border:1px solid #bdc9d8;border-radius:9px;margin-top:8px}.login-card .btn{width:100%;margin-top:10px}.login-error{min-height:19px;color:var(--red);font-size:13px;margin-top:7px}
 
 @media(max-width:1100px){.app-shell{grid-template-columns:1fr}.sidebar{position:static;max-height:none}.sidebar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.sidebar-grid>div{min-width:0}.kpi-grid{grid-template-columns:repeat(3,1fr)}.table-wrap{height:calc(100vh - 330px)}}
-@media(max-width:680px){.topbar{align-items:flex-start;flex-direction:column;padding:10px 12px}.brand h1{font-size:18px}.top-actions{width:100%;justify-content:space-between}.app-shell{padding:7px}.sidebar-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.notice{flex-direction:column}.table-head{align-items:flex-start;flex-direction:column}.table-actions{width:100%}.table-actions .btn{flex:1}.table-wrap{height:calc(100vh - 365px);min-height:300px}.form-grid{grid-template-columns:1fr}.quarter-grid{grid-template-columns:repeat(2,1fr)}.field.wide{grid-column:auto}.maintenance-eval-head{flex-direction:column}.maintenance-quarter-tabs{justify-content:flex-start}.maintenance-item{grid-template-columns:1fr}.modal-actions .btn{flex:1}}
+@media(max-width:680px){.topbar{align-items:flex-start;flex-direction:column;padding:10px 12px}.brand h1{font-size:18px}.top-actions{width:100%;justify-content:space-between}.app-shell{padding:7px}.sidebar-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.notice{flex-direction:column}.table-head{align-items:flex-start;flex-direction:column}.table-actions{width:100%}.table-actions .btn{flex:1}.table-wrap{height:calc(100vh - 365px);min-height:300px}.form-grid{grid-template-columns:1fr}.quarter-grid{grid-template-columns:repeat(2,1fr)}.field.wide{grid-column:auto}.maintenance-eval-head{flex-direction:column}.maintenance-quarter-tabs{justify-content:flex-start}.maintenance-item{grid-template-columns:1fr}.maintenance-eval-summary-row{align-items:stretch;flex-direction:column}.maintenance-quick-actions{justify-content:stretch}.maintenance-quick-btn{flex:1;min-height:40px}.modal-actions .btn{flex:1}}
 @media print{.no-print{display:none!important}}
 </style>
 </head>
@@ -436,7 +442,10 @@ function renderMaintenanceEvaluation(){
   const quarter=state.activeMaintenanceQuarter;
   const quarterData=ensureQuarterEvaluation(quarter);
   const details=Array.isArray(template.details)?template.details:[];
-  const answered=details.filter((d,i)=>quarterData.r[String(d.no||i+1)]).length;
+  const passed=details.filter((d,i)=>normalizeMaintenanceResultCode(quarterData.r[String(d.no||i+1)])==='D').length;
+  const failed=details.filter((d,i)=>normalizeMaintenanceResultCode(quarterData.r[String(d.no||i+1)])==='K').length;
+  const answered=passed+failed;
+  const pending=Math.max(0,details.length-answered);
   hint.textContent=`${template.code} — ${template.name} · ${quarter} · Đã đánh giá ${answered}/${details.length} nội dung.`;
 
   if(!details.length){
@@ -444,7 +453,13 @@ function renderMaintenanceEvaluation(){
     return;
   }
 
-  checklist.innerHTML=`<div class="maintenance-eval-summary"><b>${quarter}</b> — Ngày: ${esc(clean($('m_bdNgay'+quarter).value)||'chưa nhập')}</div>`+
+  checklist.innerHTML=`<div class="maintenance-eval-summary-row">
+      <div class="maintenance-eval-summary"><b>${quarter}</b> — Ngày: ${esc(clean($('m_bdNgay'+quarter).value)||'chưa nhập')}<span class="maintenance-counts">Đạt ${passed} · Không đạt ${failed} · Chưa đánh giá ${pending}</span></div>
+      <div class="maintenance-quick-actions">
+        <button type="button" class="maintenance-quick-btn pass-all" data-maint-bulk="pass" data-quarter="${quarter}">✓ Tất cả đạt</button>
+        <button type="button" class="maintenance-quick-btn clear-all" data-maint-bulk="clear" data-quarter="${quarter}">↺ Xóa đánh giá</button>
+      </div>
+    </div>`+
     details.map((detail,index)=>{
       const no=String(detail.no||index+1);
       const result=quarterData.r[no]||'';
@@ -677,7 +692,7 @@ function printHistory(){
       ['Tình trạng thiết bị',
         `${clean(r.tinhTrangThietBi)==='Mới 100%'?'☑':'☐'} Mới 100%      ${clean(r.tinhTrangThietBi)==='Qua sử dụng'?'☑':'☐'} Qua sử dụng`
       ],
-      ['Thông số kỹ thuật',
+      ['Thông số kỹ thuật thiết bị',
         `Công suất (KW/HP): ${clean(r.congSuat)||'........................................'}\n` +
         `Trọng lượng (KGR): ${clean(r.trongLuong)||'........................................'} Kg\n` +
         `Kích thước (M) (D x R x C): ${clean(r.kichThuoc)||'........................................'}`
@@ -1313,6 +1328,39 @@ $('maintenanceQuarterTabs').onclick=e=>{
   if(!button||button.disabled)return;
   state.activeMaintenanceQuarter=button.dataset.maintQuarter;
   renderMaintenanceEvaluation();
+};
+
+$('maintenanceChecklist').onclick=e=>{
+  const button=e.target.closest('[data-maint-bulk]');
+  if(!button)return;
+  const quarter=button.dataset.quarter||state.activeMaintenanceQuarter;
+  const data=ensureQuarterEvaluation(quarter);
+  const template=currentModalTemplate();
+  if(!data||!template)return;
+  const details=Array.isArray(template.details)?template.details:[];
+
+  if(button.dataset.maintBulk==='pass'){
+    const failedCount=details.filter((detail,index)=>{
+      const no=String(detail.no||index+1);
+      return normalizeMaintenanceResultCode(data.r[no])==='K';
+    }).length;
+    if(failedCount && !confirm(`Quý ${quarter} đang có ${failedCount} nội dung “Không đạt”. Chuyển tất cả sang “Đạt”?`))return;
+    details.forEach((detail,index)=>{
+      const no=String(detail.no||index+1);
+      data.r[no]='D';
+    });
+    renderMaintenanceEvaluation();
+    return;
+  }
+
+  if(button.dataset.maintBulk==='clear'){
+    const hasData=Object.keys(data.r||{}).length||Object.keys(data.n||{}).length;
+    if(!hasData)return;
+    if(!confirm(`Xóa toàn bộ kết quả Đạt/Không đạt và ghi chú của ${quarter}?`))return;
+    data.r={};
+    data.n={};
+    renderMaintenanceEvaluation();
+  }
 };
 
 $('maintenanceChecklist').onchange=e=>{
